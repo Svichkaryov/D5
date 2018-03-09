@@ -114,13 +114,19 @@ block_t HeysCipher::decrypt_block(const block_t& block)
 }
 
 
-void HeysCipher::encrypt(data_t & input, data_t & output)
+void HeysCipher::encrypt(const data_t & input, data_t & output)
 {
-
+	for (auto& b : input)
+	{
+		output.push_back(encrypt_block(b));
+	}
 }
 
 
-void HeysCipher::decrypt(data_t & input, data_t & output)
+void HeysCipher::decrypt(const data_t & input, data_t & output)
 {
-
+	for (auto& b : input)
+	{
+		output.push_back(decrypt_block(b));
+	}
 }

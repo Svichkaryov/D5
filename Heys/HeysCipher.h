@@ -31,6 +31,6 @@ private:
 
 	block_t encrypt_block(const block_t& block);
 	block_t decrypt_block(const block_t& block);
-	void encrypt(data_t& input, data_t& output);
-	void decrypt(data_t& input, data_t& output);
+	void encrypt(const data_t& input, data_t& output);
+	void decrypt(const data_t& input, data_t& output);
 };
