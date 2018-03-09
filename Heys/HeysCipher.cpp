@@ -2,10 +2,33 @@
 #include "HeysCipher.h"
 
 
-
-void HeysCipher::run(char action, data_t& input, data_t& output)
+void HeysCipher::run(mode_t mode, data_t& input, data_t& output)
 {
+	switch (mode)
+	{
+	case ENCRYPT:
+		encrypt(input, output);
+		break;
+	case DECRYPT:
+		decrypt(input, output);
+		break;
+	default:
+		break;
+	}
+}
 
+
+std::array<nibble_t, 16> HeysCipher::getSBox(mode_t mode)
+{
+	switch (mode)
+	{
+	case ENCRYPT:
+		return sBox;
+	case DECRYPT:
+		return invSBox;
+	default:
+		break;
+	}
 }
 
 
@@ -15,9 +38,9 @@ void HeysCipher::additionWithKey(block_t& block, const key_t& key)
 }
 
 
-void HeysCipher::substitution(block_t& block)
+void HeysCipher::substitution(mode_t mode, block_t& block)
 {
-	auto _sBox = getSBox();
+	auto _sBox = getSBox(mode);
 	nibble_t iNibble;
 	block_t iSBoxOutput;
 
@@ -42,6 +65,7 @@ void HeysCipher::substitution(block_t& block)
 	block |= iSBoxOutput;
 }
 
+
 // i'th bit of j'th nibble -> j'th bit of i'th nibble
 void HeysCipher::permutation(block_t& block)
 {
@@ -57,17 +81,46 @@ void HeysCipher::permutation(block_t& block)
 	block |= (temp_block & 0x1000) >> 9;
 }
 
-block_t HeysCipher::encrypt(const block_t& block)
+
+block_t HeysCipher::encrypt_block(const block_t& block)
 {
-	return block_t();
+	block_t _block = block;
+
+	for (int i = 0; i < N_ROUNDS; ++i)
+	{
+		additionWithKey(_block, subkeys[i]);
+		substitution(ENCRYPT,_block);
+		permutation(_block);
+	}
+	additionWithKey(_block, subkeys[N_ROUNDS]);
+
+	return _block;
 }
 
-block_t HeysCipher::decrypt(const block_t& block)
+
+block_t HeysCipher::decrypt_block(const block_t& block)
 {
-	return block_t();
+	block_t _block = block;
+	
+	additionWithKey(_block, subkeys[N_ROUNDS]);
+
+	for (int i = N_ROUNDS; i > 0; --i)
+	{
+		permutation(_block);
+		substitution(DECRYPT,_block);
+		additionWithKey(_block, subkeys[i]);
+	}
+	return _block;
 }
 
-std::array<nibble_t, 16> HeysCipher::getSBox()
+
+void HeysCipher::encrypt(data_t & input, data_t & output)
 {
-	return sBox;
+
+}
+
+
+void HeysCipher::decrypt(data_t & input, data_t & output)
+{
+
 }

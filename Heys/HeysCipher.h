@@ -3,15 +3,16 @@
 #include "common.h"
 
 
+
 class HeysCipher
 {
 public:
 	HeysCipher()  = default;
 	~HeysCipher() = default;
 
-	std::array<byte_t, 16> getSBox();
-	
-	void run(char action, data_t& input, data_t& output);
+	std::array<byte_t, 16> getSBox(mode_t mode);
+
+	void run(mode_t mode, data_t& input, data_t& output);
 
 private:
 	static const int N_ROUNDS            = 6;
@@ -25,9 +26,11 @@ private:
 	const std::array<key_t, N_SUB_KEY> subkeys = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
 	void additionWithKey(block_t& block, const key_t& key);
-	void substitution(block_t& block);
+	void substitution(mode_t mode, block_t& block);
 	void permutation(block_t& block);
 
-	block_t encrypt(const block_t& block);
-	block_t decrypt(const block_t& block);
+	block_t encrypt_block(const block_t& block);
+	block_t decrypt_block(const block_t& block);
+	void encrypt(data_t& input, data_t& output);
+	void decrypt(data_t& input, data_t& output);
 };
