@@ -15,4 +15,7 @@ public:
 	int getFileSize(const char* from);
 	int setDataBlock(data_t& from, const char* to);
 	int getDataBlock(const char* from, data_t& to);
+
+private:
+
 };

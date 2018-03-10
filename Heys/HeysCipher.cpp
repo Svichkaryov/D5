@@ -3,7 +3,7 @@
 
 
 
-void HeysCipher::run(mode_t mode, data_t& input, data_t& output)
+void HeysCipher::run(mode_t mode, const data_t& input, data_t& output)
 {
 	switch (mode)
 	{
@@ -42,7 +42,7 @@ void HeysCipher::infoCipher()
 }
 
 
-void HeysCipher::additionWithKey(block_t& block, const subKey_t& key)
+void HeysCipher::additionWithKey(block_t& block, const roundKey_t& key)
 {
 	block = block ^ key;
 }
@@ -98,11 +98,11 @@ block_t HeysCipher::encrypt_block(const block_t& block)
 
 	for (int i = 0; i < N_ROUNDS; ++i)
 	{
-		additionWithKey(_block, roundKeys[i]);
+		additionWithKey(_block, m_roundKeys.getRoundKey(i));
 		substitution(ENCRYPT,_block);
 		permutation(_block);
 	}
-	additionWithKey(_block, roundKeys[N_ROUNDS]);
+	additionWithKey(_block, m_roundKeys.getRoundKey(N_ROUNDS));
 
 	return _block;
 }
@@ -112,13 +112,13 @@ block_t HeysCipher::decrypt_block(const block_t& block)
 {
 	block_t _block = block;
 	
-	additionWithKey(_block, roundKeys[N_ROUNDS]);
+	additionWithKey(_block, m_roundKeys.getRoundKey(N_ROUNDS));
 
 	for (int i = N_ROUNDS-1; i >= 0; --i)
 	{
 		permutation(_block);
 		substitution(DECRYPT,_block);
-		additionWithKey(_block, roundKeys[i]);
+		additionWithKey(_block, m_roundKeys.getRoundKey(i));
 	}
 	return _block;
 }
