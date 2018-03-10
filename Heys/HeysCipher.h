@@ -3,6 +3,7 @@
 #include "common.h"
 
 
+
 class HeysCipher
 {
 public:

@@ -2,6 +2,7 @@
 #include "HeysCipher.h"
 
 
+
 void HeysCipher::run(mode_t mode, data_t& input, data_t& output)
 {
 	switch (mode)
