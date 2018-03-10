@@ -113,7 +113,7 @@ block_t HeysCipher::decrypt_block(const block_t& block)
 	
 	additionWithKey(_block, roundKeys[N_ROUNDS]);
 
-	for (int i = N_ROUNDS; i > 0; --i)
+	for (int i = N_ROUNDS-1; i >= 0; --i)
 	{
 		permutation(_block);
 		substitution(DECRYPT,_block);
