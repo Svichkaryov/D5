@@ -33,6 +33,12 @@
     <ClInclude Include="RoundKey.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="W_HeysCipher.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="const.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +54,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="RoundKey.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="W_HeysCipher.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="const.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

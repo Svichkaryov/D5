@@ -17,5 +17,4 @@ using roundKey_t = uint16_t;
 using data_t     = std::vector<block_t>;
 using key_t      = std::array<roundKey_t, 7>;
 
-
 enum mode_t { ENCRYPT, DECRYPT };
