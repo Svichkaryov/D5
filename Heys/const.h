@@ -2,7 +2,9 @@
 
 namespace path
 {
-	extern const char* plainText;
-	extern const char* cipherText;
-	extern const char* key;
+	extern std::string pathToTestFolder;
+	extern std::string plaintText;
+	extern std::string cipherText;
+	extern std::string key;
+
 }

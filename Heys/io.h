@@ -11,11 +11,11 @@ public:
 	FileReader() = default;
 	~FileReader() = default;
 
-	std::vector<char> readAllBytes(const char* filename);
-	int getFileSize(const char* from);
-	int setDataBlock(data_t& from, const char* to);
-	int getDataBlock(const char* from, data_t& to);
-
+	std::string getFileName(const std::string& filePath, bool withExtension, char seperator);
+	std::vector<char> readAllBytes(const std::string& filename);
+	int getFileSize(const std::string& from);
+	int getDataBlock(const std::string& from, data_t& to);
+	int setDataBlock(const data_t& from, const std::string& to);
 private:
 
 };

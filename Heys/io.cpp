@@ -2,14 +2,26 @@
 #include "io.h"
 
 
+std::string FileReader::getFileName(const std::string& filePath, bool withExtension = true, char seperator = '/')
+{
+	// Get last dot position
+	std::size_t dotPos = filePath.rfind('.');
+	std::size_t sepPos = filePath.rfind(seperator);
 
-std::vector<char> FileReader::readAllBytes(const char* filename)
+	if (sepPos != std::string::npos)
+	{
+		return filePath.substr(sepPos + 1, filePath.size() - (withExtension || dotPos != std::string::npos ? 1 : dotPos));
+	}
+	return filePath;
+}
+
+std::vector<char> FileReader::readAllBytes(const std::string& filename)
 {
 	std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
 	
 	if (!ifs)
 	{
-		printf("Can't open %s file.\n", filename);
+		printf("Can't open %s file.\n", getFileName(filename).c_str());
 		return std::vector<char>();
 	}
 	if (getFileSize(filename) == 0)
@@ -29,14 +41,14 @@ std::vector<char> FileReader::readAllBytes(const char* filename)
 }
 
 
-int FileReader::getFileSize(const char* from)
+int FileReader::getFileSize(const std::string& from)
 {
 	std::streampos begin, end;
 	std::ifstream ifs(from, std::ios::binary);
 
 	if (!ifs)
 	{
-		std::cout << "Can't open file.\n";
+		printf("Can't open %s file.\n", getFileName(from).c_str());
 		return -1;
 	}
 
@@ -46,15 +58,16 @@ int FileReader::getFileSize(const char* from)
 	ifs.close();
 	int _size = end - begin;
 	
-	std::cout << "Size of " << from << " is: " << _size << " bytes.\n";
+	printf("Size of %s is %d bytes.\n", getFileName(from).c_str(), _size);
 	
 	return _size;
 }
 
 
-int FileReader::getDataBlock(const char* from, data_t& to)
+int FileReader::getDataBlock(const std::string& from, data_t& to)
 {
 	auto bytes = readAllBytes(from);
+	
 	if (bytes.empty())
 	{
 		return -1;
@@ -76,12 +89,12 @@ int FileReader::getDataBlock(const char* from, data_t& to)
 }
 
 
-int FileReader::setDataBlock(data_t& from, const char* to)
+int FileReader::setDataBlock(const data_t& from, const std::string& to)
 {
 	std::ofstream out(to);
 	if (!out) 
 	{
-		printf("Can't open %s file.\n",from);
+		printf("Can't open %s file.\n", getFileName(to).c_str());
 		return -1;
 	}
 
@@ -98,4 +111,3 @@ int FileReader::setDataBlock(data_t& from, const char* to)
 	
 	return 1;
 }
-

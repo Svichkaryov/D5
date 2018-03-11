@@ -4,7 +4,7 @@
 #include "io.h"
 
 
-void W_HeysCipher::run(mode_t mode,const char* from,const char* to, const char* key)
+void W_HeysCipher::run(mode_t mode,const std::string& from, const std::string& to, const std::string& key)
 {
 	data_t pt = {};
 	data_t ct = {};
