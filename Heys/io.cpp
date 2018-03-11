@@ -109,5 +109,14 @@ int FileReader::setDataBlock(const data_t& from, const std::string& to)
 
 	out.close();
 	
+	if (getFileSize(to) == 0)
+	{
+		printf("Something is going wrong.\n");
+	}
+	else
+	{
+		printf("Writing data to %s.\n", getFileName(to).c_str());
+	}
+
 	return 1;
 }

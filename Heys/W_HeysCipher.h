@@ -8,8 +8,8 @@ public:
 	W_HeysCipher() = default;
 	~W_HeysCipher() = default;
 
-	void run(mode_t mode, const std::string& from, const std::string& to, const std::string& key);
-	void consoleRun();
+	static void run(mode_t mode, const std::string& from, const std::string& to, const std::string& key);
+	static void consoleRun(int argc, char* argv[]);
 private:
 
 };
