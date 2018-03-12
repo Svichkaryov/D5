@@ -21,22 +21,22 @@
     <ClInclude Include="targetver.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="HeysCipher.h">
+    <ClInclude Include="HeysCipher\HeysCipher.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
+    <ClInclude Include="HeysCipher\RoundKey.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="io.h">
+    <ClInclude Include="HeysCipher\W_HeysCipher.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="RoundKey.h">
+    <ClInclude Include="common\common.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="W_HeysCipher.h">
+    <ClInclude Include="common\const.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="const.h">
+    <ClInclude Include="common\io.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,19 +47,19 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="HeysCipher.cpp">
+    <ClCompile Include="HeysCipher\RoundKey.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="io.cpp">
+    <ClCompile Include="HeysCipher\W_HeysCipher.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="RoundKey.cpp">
+    <ClCompile Include="HeysCipher\HeysCipher.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="W_HeysCipher.cpp">
+    <ClCompile Include="common\const.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="const.cpp">
+    <ClCompile Include="common\io.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

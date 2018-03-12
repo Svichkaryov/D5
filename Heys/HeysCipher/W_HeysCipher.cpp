@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "W_HeysCipher.h"
 #include "HeysCipher.h"
-#include "io.h"
-#include "const.h"
+#include "../common/io.h"
+#include "../common/const.h"
 
 
 void W_HeysCipher::run(mode_t mode,const std::string& from, const std::string& to, const std::string& key)
@@ -16,6 +16,7 @@ void W_HeysCipher::run(mode_t mode,const std::string& from, const std::string& t
 	{
 	case ENCRYPT:
 		fr.getDataBlock(from, pt);
+
 		if(key=="default")
 		{
 			RoundKey rkeys;
@@ -69,9 +70,10 @@ void W_HeysCipher::consoleRun(int argc, char* argv[])
 			{
 				if (!strcmp(argv[1], "sp"))
 				{
-					W_HeysCipher::run(ENCRYPT, path::pathToTestFolder + argv[3], path::pathToTestFolder + argv[4], "default");
+					W_HeysCipher::run(ENCRYPT, path::pathToTestFolder + argv[3], 
+						path::pathToTestFolder + argv[4], "default");
 				}
-				if (!strcmp(argv[1], "op"))
+				else if (!strcmp(argv[1], "op"))
 				{
 					W_HeysCipher::run(ENCRYPT, argv[3], argv[4], "default");
 				}
@@ -80,9 +82,10 @@ void W_HeysCipher::consoleRun(int argc, char* argv[])
 			{
 				if (!strcmp(argv[1], "sp"))
 				{
-					W_HeysCipher::run(DECRYPT, path::pathToTestFolder + argv[3], path::pathToTestFolder + argv[4], "default");
+					W_HeysCipher::run(DECRYPT, path::pathToTestFolder + argv[3], 
+						path::pathToTestFolder + argv[4], "default");
 				}
-				if (!strcmp(argv[1], "op"))
+				else if (!strcmp(argv[1], "op"))
 				{
 					W_HeysCipher::run(DECRYPT, argv[3], argv[4], "default");
 				}
@@ -94,9 +97,10 @@ void W_HeysCipher::consoleRun(int argc, char* argv[])
 			{
 				if (!strcmp(argv[1], "sp"))
 				{
-					W_HeysCipher::run(ENCRYPT, path::pathToTestFolder + argv[3], path::pathToTestFolder + argv[4], path::pathToTestFolder + argv[5]);
+					W_HeysCipher::run(ENCRYPT, path::pathToTestFolder + argv[3], 
+						path::pathToTestFolder + argv[4], path::pathToTestFolder + argv[5]);
 				}
-				if (!strcmp(argv[1], "op"))
+				else if (!strcmp(argv[1], "op"))
 				{
 					W_HeysCipher::run(ENCRYPT, argv[3], argv[4], argv[5]);
 				}
@@ -105,9 +109,10 @@ void W_HeysCipher::consoleRun(int argc, char* argv[])
 			{
 				if (!strcmp(argv[1], "sp"))
 				{
-					W_HeysCipher::run(DECRYPT, path::pathToTestFolder + argv[3], path::pathToTestFolder + argv[4], path::pathToTestFolder + argv[5]);
+					W_HeysCipher::run(DECRYPT, path::pathToTestFolder + argv[3], 
+						path::pathToTestFolder + argv[4], path::pathToTestFolder + argv[5]);
 				}
-				if (!strcmp(argv[1], "op"))
+				else if (!strcmp(argv[1], "op"))
 				{
 					W_HeysCipher::run(DECRYPT, argv[3], argv[4], argv[5]);
 				}
@@ -117,6 +122,7 @@ void W_HeysCipher::consoleRun(int argc, char* argv[])
 	}
 	else
 	{
+		printf("* Heys cipher with one SBox");
 		printf("Usage: Heys {sp|op} {e|d} <input file> <output file> [<key file>]\n");
 		printf("where: sp(for dev, don't use this) or op - standart path to 3 files or own path\n");
 		printf("       input file  - name of file to be encrypted\n");
