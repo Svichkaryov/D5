@@ -39,6 +39,9 @@
     <ClInclude Include="common\io.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="DifferentialAnalysis\BranchAndBound.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -60,6 +63,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="common\io.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="DifferentialAnalysis\BranchAndBound.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

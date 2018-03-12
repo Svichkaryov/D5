@@ -41,7 +41,7 @@ std::vector<char> FileReader::readAllBytes(const std::string& filename)
 }
 
 
-int FileReader::getFileSize(const std::string& from)
+long long FileReader::getFileSize(const std::string& from)
 {
 	std::streampos begin, end;
 	std::ifstream ifs(from, std::ios::binary);
@@ -56,9 +56,9 @@ int FileReader::getFileSize(const std::string& from)
 	ifs.seekg(0, std::ios::end);
 	end = ifs.tellg();
 	ifs.close();
-	int _size = end - begin;
+	long long _size = end - begin;
 	
-	printf("Size of %s is %d bytes.\n", getFileName(from).c_str(), _size);
+	printf("Size of %s is %I64d bytes.\n", getFileName(from).c_str(), _size);
 	
 	return _size;
 }

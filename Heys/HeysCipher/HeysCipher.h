@@ -10,9 +10,11 @@ public:
 	HeysCipher(const RoundKey& roundKeys) : m_roundKeys(roundKeys) {};
 	~HeysCipher() = default;
 
+	void run(mode_t mode, const data_t& input, data_t& output);
+	
 	std::array<byte_t, 16> getSBox(mode_t mode);
 	void infoCipher();
-	void run(mode_t mode, const data_t& input, data_t& output);
+	static int getCipherParam(cypherParam param);
 
 private:
 	static const int N_ROUNDS            = 6;

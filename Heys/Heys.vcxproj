@@ -150,6 +150,7 @@
     <ClInclude Include="common\common.h" />
     <ClInclude Include="common\const.h" />
     <ClInclude Include="common\io.h" />
+    <ClInclude Include="DifferentialAnalysis\BranchAndBound.h" />
     <ClInclude Include="HeysCipher\HeysCipher.h" />
     <ClInclude Include="HeysCipher\RoundKey.h" />
     <ClInclude Include="HeysCipher\W_HeysCipher.h" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="common\const.cpp" />
     <ClCompile Include="common\io.cpp" />
+    <ClCompile Include="DifferentialAnalysis\BranchAndBound.cpp" />
     <ClCompile Include="HeysCipher\HeysCipher.cpp" />
     <ClCompile Include="HeysCipher\RoundKey.cpp" />
     <ClCompile Include="HeysCipher\W_HeysCipher.cpp" />

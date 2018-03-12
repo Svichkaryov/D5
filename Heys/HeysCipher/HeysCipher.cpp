@@ -28,7 +28,7 @@ std::array<nibble_t, 16> HeysCipher::getSBox(mode_t mode)
 	case DECRYPT:
 		return invSBox;
 	default:
-		break;
+		return std::array<nibble_t, 16>();
 	}
 }
 
@@ -39,6 +39,26 @@ void HeysCipher::infoCipher()
 	std::cout << "Block size: "       << BLOCK_SIZE << std::endl;
 	std::cout << "Round key size: "   << ROUND_KEY_SIZE << std::endl;
 	std::cout << "Key size: "         << KEY_SIZE << std::endl;
+}
+
+
+int HeysCipher::getCipherParam(cypherParam param)
+{
+	switch (param)
+	{
+	case N_ROUNDS_P:
+		return N_ROUNDS;
+	case BLOCK_SIZE_P:
+		return BLOCK_SIZE;
+	case ROUND_KEY_SIZE_P:
+		return ROUND_KEY_SIZE;
+	case KEY_SIZE_P:
+		return KEY_SIZE;
+	case N_SUB_KEY_P:
+		return N_SUB_KEY;
+	default:
+		return -1;
+	}
 }
 
 
