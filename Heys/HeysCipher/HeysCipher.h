@@ -3,18 +3,19 @@
 #include "RoundKey.h"
 
 
+
 class HeysCipher
 {
 public:
-	HeysCipher() = default;
-	HeysCipher(const RoundKey& roundKeys) : m_roundKeys(roundKeys) {};
+	HeysCipher(int sBoxNumber) : sBox(sBoxes::sBoxes[2*sBoxNumber-2]), invSBox(sBoxes::sBoxes[2*sBoxNumber-1]) {};
+	HeysCipher(const RoundKey& roundKeys, uint64_t sBoxNumber) : m_roundKeys(roundKeys), sBox(sBoxes::sBoxes[2 * sBoxNumber - 2]), invSBox(sBoxes::sBoxes[2 * sBoxNumber - 1]) {};
 	~HeysCipher() = default;
 
 	void run(mode_t mode, const data_t& input, data_t& output);
 	
 	std::array<byte_t, 16> getSBox(mode_t mode);
 	void infoCipher();
-	static int getCipherParam(cypherParam param);
+	static int getCipherParam(cipherParam param);
 
 private:
 	static const int N_ROUNDS            = 6;
@@ -25,9 +26,9 @@ private:
 	
 	RoundKey m_roundKeys;
 
-	const std::array<nibble_t, 16> sBox     = { 0x3, 0x8, 0xD, 0x9, 0x6, 0xB, 0xF, 0x0, 0x2, 0x5, 0xC, 0xA, 0x4, 0xE, 0x1, 0x7 };
-	const std::array<nibble_t, 16> invSBox  = { 0x7, 0xE, 0x8, 0x0, 0xC, 0x9, 0x4, 0xF, 0x1, 0x3, 0xB, 0x5, 0xA, 0x2, 0xD, 0x6 };
-	
+	const std::array<nibble_t, 16> sBox;
+	const std::array<nibble_t, 16> invSBox;
+
 	void additionWithKey(block_t& block, const roundKey_t& key);
 	void substitution(mode_t mode, block_t& block);
 	void permutation(block_t& block);

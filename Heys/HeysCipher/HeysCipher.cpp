@@ -41,8 +41,7 @@ void HeysCipher::infoCipher()
 	std::cout << "Key size: "         << KEY_SIZE << std::endl;
 }
 
-
-int HeysCipher::getCipherParam(cypherParam param)
+int HeysCipher::getCipherParam(cipherParam param)
 {
 	switch (param)
 	{
