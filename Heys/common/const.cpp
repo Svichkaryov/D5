@@ -2,7 +2,6 @@
 #include "const.h"
 
 
-
 namespace path
 {
 	const std::string pathToTestFolder   = "E:/VS_Proj/SV/Heys/Heys/Heys/test/testMyProg/";
@@ -10,6 +9,8 @@ namespace path
 	const std::string plaintText         = pathToTestFolder + "pt.txt";
 	const std::string cipherText         = pathToTestFolder + "ct.txt";
 	const std::string key                = pathToTestFolder + "key.txt";
+
+	const std::string pathToTableInfo    = "E:/VS_Proj/SV/Heys/Heys/Heys/DifferentialAnalysis/tablesInfo/";
 }
 
 namespace sBoxes
@@ -68,9 +69,6 @@ namespace sBoxes
 		}
 	};
 
-
-	const std::array<nibble_t, 16> sBox4 = { 0x3, 0x8, 0xD, 0x9, 0x6, 0xB, 0xF, 0x0, 0x2, 0x5, 0xC, 0xA, 0x4, 0xE, 0x1, 0x7 };
-	const std::array<nibble_t, 16> invSBox4 = { 0x7, 0xE, 0x8, 0x0, 0xC, 0x9, 0x4, 0xF, 0x1, 0x3, 0xB, 0x5, 0xA, 0x2, 0xD, 0x6 };
 
 	std::array<nibble_t, 16> getInvSbox(const std::array<nibble_t, 16>& sBox)
 	{

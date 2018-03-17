@@ -34,7 +34,7 @@ std::array<nibble_t, 16> HeysCipher::getSBox(mode_t mode)
 
 void HeysCipher::infoCipher()
 {
-	std::cout << "Number of rounds: " << N_ROUNDS << std::endl;
+	std::cout << "Number of rounds: " << ROUNDS_NUMBER << std::endl;
 	std::cout << "Size is in bit..."  << std::endl;
 	std::cout << "Block size: "       << BLOCK_SIZE << std::endl;
 	std::cout << "Round key size: "   << ROUND_KEY_SIZE << std::endl;
@@ -45,15 +45,15 @@ int HeysCipher::getCipherParam(cipherParam param)
 {
 	switch (param)
 	{
-	case N_ROUNDS_P:
-		return N_ROUNDS;
+	case NUMBER_ROUNDS_P:
+		return ROUNDS_NUMBER;
 	case BLOCK_SIZE_P:
 		return BLOCK_SIZE;
 	case ROUND_KEY_SIZE_P:
 		return ROUND_KEY_SIZE;
 	case KEY_SIZE_P:
 		return KEY_SIZE;
-	case N_SUB_KEY_P:
+	case NUMBER_SUB_KEY_P:
 		return N_SUB_KEY;
 	default:
 		return -1;
@@ -115,13 +115,13 @@ block_t HeysCipher::encrypt_block(const block_t& block)
 {
 	block_t _block = block;
 
-	for (int i = 0; i < N_ROUNDS; ++i)
+	for (int i = 0; i < ROUNDS_NUMBER; ++i)
 	{
 		additionWithKey(_block, m_roundKeys.getRoundKey(i));
 		substitution(ENCRYPT,_block);
 		permutation(_block);
 	}
-	additionWithKey(_block, m_roundKeys.getRoundKey(N_ROUNDS));
+	additionWithKey(_block, m_roundKeys.getRoundKey(ROUNDS_NUMBER));
 
 	return _block;
 }
@@ -131,9 +131,9 @@ block_t HeysCipher::decrypt_block(const block_t& block)
 {
 	block_t _block = block;
 	
-	additionWithKey(_block, m_roundKeys.getRoundKey(N_ROUNDS));
+	additionWithKey(_block, m_roundKeys.getRoundKey(ROUNDS_NUMBER));
 
-	for (int i = N_ROUNDS-1; i >= 0; --i)
+	for (int i = ROUNDS_NUMBER - 1; i >= 0; --i)
 	{
 		permutation(_block);
 		substitution(DECRYPT,_block);

@@ -39,7 +39,7 @@
     <ClInclude Include="common\io.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="DifferentialAnalysis\BranchAndBound.h">
+    <ClInclude Include="DifferentialAnalysis\HeysAnalysis.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,7 +65,7 @@
     <ClCompile Include="common\io.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="DifferentialAnalysis\BranchAndBound.cpp">
+    <ClCompile Include="DifferentialAnalysis\HeysAnalysis.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

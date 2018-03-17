@@ -8,17 +8,18 @@ class HeysCipher
 {
 public:
 	HeysCipher(int sBoxNumber) : sBox(sBoxes::sBoxes[2*sBoxNumber-2]), invSBox(sBoxes::sBoxes[2*sBoxNumber-1]) {};
-	HeysCipher(const RoundKey& roundKeys, uint64_t sBoxNumber) : m_roundKeys(roundKeys), sBox(sBoxes::sBoxes[2 * sBoxNumber - 2]), invSBox(sBoxes::sBoxes[2 * sBoxNumber - 1]) {};
+	HeysCipher(const RoundKey& roundKeys, int sBoxNumber) 
+		: m_roundKeys(roundKeys), sBox(sBoxes::sBoxes[2 * sBoxNumber - 2]), invSBox(sBoxes::sBoxes[2 * sBoxNumber - 1]) {} ;
 	~HeysCipher() = default;
 
 	void run(mode_t mode, const data_t& input, data_t& output);
 	
 	std::array<byte_t, 16> getSBox(mode_t mode);
-	void infoCipher();
+	static void infoCipher();
 	static int getCipherParam(cipherParam param);
 
 private:
-	static const int N_ROUNDS            = 6;
+	static const int ROUNDS_NUMBER            = 6;
 	static const int BLOCK_SIZE          = 16;
 	static const int ROUND_KEY_SIZE      = 16;
 	static const int KEY_SIZE            = 112;

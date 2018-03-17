@@ -2,9 +2,8 @@
 #include "io.h"
 
 
-std::string FileReader::getFileName(const std::string& filePath, bool withExtension = true, char seperator = '/')
+std::string FileReader::getFileName(const std::string& filePath, bool withExtension, char seperator)
 {
-	// Get last dot position
 	std::size_t dotPos = filePath.rfind('.');
 	std::size_t sepPos = filePath.rfind(seperator);
 
@@ -74,12 +73,12 @@ int FileReader::getDataBlock(const std::string& from, data_t& to)
 	}
 
 	if (bytes.size() % 2 == 1)
-		bytes.push_back('0');
+		bytes.pop_back();
 
 	for (int i = 0; i < bytes.size(); i += 2)
 	{
-		block_t high   = (static_cast<unsigned>(bytes[i + 1]) & 0xFF) << 8;
-		block_t low    = static_cast<unsigned>(bytes[i]) & 0xFF;
+		block_t high   = (static_cast<block_t>(bytes[i + 1]) & 0xFF) << 8;
+		block_t low    = static_cast<block_t>(bytes[i]) & 0xFF;
 		block_t _block = high ^ low;
 
 		to.push_back(_block);
@@ -91,7 +90,7 @@ int FileReader::getDataBlock(const std::string& from, data_t& to)
 
 int FileReader::setDataBlock(const data_t& from, const std::string& to)
 {
-	std::ofstream out(to);
+	std::ofstream out(to, std::ios::binary);
 	if (!out) 
 	{
 		printf("Can't open %s file.\n", getFileName(to).c_str());
@@ -101,10 +100,9 @@ int FileReader::setDataBlock(const data_t& from, const std::string& to)
 	for (int i = 0; i < from.size(); ++i)
 	{
 		block_t temp = from[i];
-		block_t high = (temp & 0xFF00) >> 8;
-		block_t low  = temp & 0xFF;
-
-		out << (char)low << (char)high;
+		byte_t high = static_cast<byte_t>((temp & 0xFF00) >> 8);
+		byte_t low  = static_cast<byte_t>(temp & 0xFF);
+		out << low << high;
 	}
 
 	out.close();
@@ -119,4 +117,37 @@ int FileReader::setDataBlock(const data_t& from, const std::string& to)
 	}
 
 	return 1;
+}
+
+
+std::string FileReader::readLineFromFile(const std::string& sFilename, int lineNumber)
+{
+	std::string line;
+	std::ifstream ifs(sFilename, std::ifstream::in);
+
+	if (!ifs.is_open())
+	{
+		printf("Can't open file.\n");
+		exit(1);
+	}
+
+	char n;
+	int i = 0;
+
+	while (ifs.good())
+	{
+		n = ifs.get();
+		if (i == lineNumber)
+		{
+			line += n;
+		}
+		if (n == '\n')
+		{
+			i++;
+		}
+	}
+
+	line.erase(line.size() - 1);
+	ifs.close();
+	return line;
 }
