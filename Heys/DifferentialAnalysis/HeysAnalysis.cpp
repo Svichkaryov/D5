@@ -129,11 +129,11 @@ void HeysAnalysis::calcFullDPTable(std::vector<std::vector<int>>& dPTable, int s
 	}
 
 	int BLOCK_SIZE =  HeysCipher::getCipherParam(BLOCK_SIZE_P);
-	int N_BLOCK = (1 << BLOCK_SIZE);
+	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 
 	std::array<block_t, UINT16_MAX+1> SP;
 
-	for (int block = 0; block < N_BLOCK; ++block)
+	for (int block = 0; block < BLOCKS_NUMBER; ++block)
 	{
 		SP[block] = 0;
 
@@ -143,28 +143,28 @@ void HeysAnalysis::calcFullDPTable(std::vector<std::vector<int>>& dPTable, int s
 		SP[block] = _block;
 	}
 
-	for (int alfa = 1; alfa < N_BLOCK; ++alfa)
+	for (int alfa = 1; alfa < BLOCKS_NUMBER; ++alfa)
 	{
-		std::array<int, UINT16_MAX+1> counters;
+		std::array<int, UINT16_MAX+1> frequence;
 		
 		for (int i = 0; i < UINT16_MAX + 1; ++i)
 		{
-			counters[i] = 0;
+			frequence[i] = 0;
 		}
 
-		for (int x = 0; x < N_BLOCK; ++x)
+		for (int x = 0; x < BLOCKS_NUMBER; ++x)
 		{
-			counters[SP[x] ^ SP[x^alfa]] ++;
+			frequence[SP[x] ^ SP[x^alfa]] ++;
 		}
 
 		dPTable.push_back(std::vector<int>());
 		
-		for (int b = 0; b < N_BLOCK; b++) 
+		for (int b = 0; b < BLOCKS_NUMBER; b++) 
 		{
-			if (counters[b] != 0) 
+			if (frequence[b] != 0)
 			{
-				dPTable[alfa-1].push_back((b | (counters[b] << BLOCK_SIZE)));
-				out << (b | (counters[b] << BLOCK_SIZE)) << ";";
+				dPTable[alfa-1].push_back((b | (frequence[b] << BLOCK_SIZE)));
+				out << (b | (frequence[b] << BLOCK_SIZE)) << ";";
 			}
 		}
 		out << "\n";
@@ -217,35 +217,36 @@ void HeysAnalysis::calcLineOfDPTable(std::vector<int>& lineOfDPTable, int alfa, 
 
 std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNumber)
 {
-	int BLOCK_SIZE    = HeysCipher::getCipherParam(BLOCK_SIZE_P);
+	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int ROUNDS_NUMBER = HeysCipher::getCipherParam(NUMBER_ROUNDS_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 
 	std::map<int, double> result;
 
-	double prob[5] = { 0.124, 0.00195, 0.00031, 0.0002, 0.000011 }; // emperical probabilities
+	double prob[5] = { 0.124, 0.00195, 0.00031, 0.0002, 0.000011 }; // emperical probabilities for 4_sBox
 
-	double* currentDiffProbs = new double[BLOCKS_NUMBER];
+
+	double* currentListDiffProbs = new double[BLOCKS_NUMBER];
 	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
-		currentDiffProbs[i] = -1.0;
+		currentListDiffProbs[i] = -1.0;
 	}
 
-	currentDiffProbs[inputDiff] = 1.0;
+	currentListDiffProbs[inputDiff] = 1.0;
 
-	double* nextDiffProbs = new double[BLOCKS_NUMBER];
+	double* nextListDiffProbs = new double[BLOCKS_NUMBER];
 
 	for (int round = 1; round < ROUNDS_NUMBER; round++)
 	{
 		//printf("round %d:\n", round);
 		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
-			nextDiffProbs[i] = -1;
+			nextListDiffProbs[i] = -1;
 		}
 
 		for (int inputDiff = 0; inputDiff < BLOCKS_NUMBER; inputDiff++)
 		{
-			double inputDiffProb = currentDiffProbs[inputDiff];
+			double inputDiffProb = currentListDiffProbs[inputDiff];
 
 			if (inputDiffProb < 0.0) {
 				continue;
@@ -260,51 +261,51 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 				int diff = bAP & 0xffff;
 				int freq = bAP >> 16;
 
-				double currentProb = nextDiffProbs[diff];
+				double currentProb = nextListDiffProbs[diff];
 				if (currentProb < 0.0)
 				{
 					currentProb = 0.0;
 				}
 
-				nextDiffProbs[diff] = currentProb + (((double)freq / (double)BLOCKS_NUMBER) * inputDiffProb);
+				nextListDiffProbs[diff] = currentProb + ((static_cast<double>(freq) / static_cast<double>(BLOCKS_NUMBER)) * inputDiffProb);
 			}
 		}
 
 		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
-			if (nextDiffProbs[i] < prob[round - 1])
+			if (nextListDiffProbs[i] < prob[round - 1])
 			{
-				nextDiffProbs[i] = -1.0;
+				nextListDiffProbs[i] = -1.0;
 			}
 		}
 
 		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
-			currentDiffProbs[i] = nextDiffProbs[i];
+			currentListDiffProbs[i] = nextListDiffProbs[i];
 		}
 
-		for (int i = 0; i < BLOCKS_NUMBER; i++)
+		/*for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
-			if (currentDiffProbs[i] > 0)
+			if (currentListDiffProbs[i] > 0)
 			{
-				//printf("round: %d, diff: %d, prob: %f\n", round, i, currentDiffProbs[i]);
+				printf("round: %d, diff: %d, prob: %f\n", round, i, currentListDiffProbs[i]);
 			}
-		}
+		}*/
 
-		if (round == 5) 
+		if (round == 5)
 		{
 			for (int i = 0; i < BLOCKS_NUMBER; i++)
 			{
-				if (currentDiffProbs[i] != -1.0)
+				if (currentListDiffProbs[i] != -1.0)
 				{
-					result.insert(std::pair<int, double>(i, currentDiffProbs[i]));
+					result.insert(std::pair<int, double>(i, currentListDiffProbs[i]));
 				}
 			}
 		}
 	}
 
-	delete[] currentDiffProbs;
-	delete[] nextDiffProbs;
+	delete[] currentListDiffProbs;
+	delete[] nextListDiffProbs;
 
 	return result;
 }
@@ -317,78 +318,113 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, int diff, double 
 	//int textNumber = (int)(1.0 / (diffProb - 1.0 / BLOCKS_NUMBER));
 	//printf("textNumber = %d ",textNumber);
 
-	int textNumber = 1000;
+	int textNumber = 16000;
 
 	FileReader fr;
 
 	data_t allBlocks = {};
 	data_t encryptedBlocks = {};
 
-	for (int i = 0; i < BLOCKS_NUMBER; i++)
-	{
-		allBlocks.push_back(i);
-	}
-	
+	//for (int i = 0; i < BLOCKS_NUMBER; i++)
+	//{
+	//	allBlocks.push_back(i);
+	//}
 	//fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
-	
+	//
+
 	// encrypt data with exe ......
+	//encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
 
 	// continue 
-	fr.getDataBlock(path::pathToTestFolder + "ct.txt", encryptedBlocks);
+
+	fr.getDataBlock(path::pathToTestSVFolder + "ct.txt", encryptedBlocks);
 	
 	srand(time(0));
-	std::vector<block_t> usedBlocks = {};
+	std::vector<block_t> preparedBlocks = {};
 	for (int j = 0; j < textNumber; ++j)
 	{
-		int r = rand() % 65535;
-		block_t block = allBlocks[r];
-		usedBlocks.push_back(block);
+		int r = rand() % 65536;
+		block_t block;
+		do
+		{
+			block = rand() % 65536;
+		} while (std::find(preparedBlocks.begin(), preparedBlocks.end(), block) != preparedBlocks.end());
+		preparedBlocks.push_back(block);
 	}
 
-	std::array<int, UINT16_MAX + 1> reversePS;
+	std::array<int, UINT16_MAX + 1> PS;
 
 	for (int block = 0; block < BLOCKS_NUMBER; ++block)
 	{
-		reversePS[block] = 0;
+		PS[block] = 0;
 
 		block_t _block = static_cast<block_t>(block);
 		permutation(_block);
 		substituion(DECRYPT, _block, sBoxNumber);
-		reversePS[block] = _block;
+		PS[block] = _block;
 	}
 
-
 	int keyCandidate = -1;
-	int candidateCoincides = 0;
+	int candidateCoicidences = 0;
 
-	for (int key = 0; key < BLOCKS_NUMBER; key++) {
+	for (int key = 0; key < BLOCKS_NUMBER; key++)
+	{
+		int numOfCoincidences = 0;
 
-		int coincides = 0;
+		for (int block : preparedBlocks)
+		{
+			int blockHatch = block ^ inputDiff;
 
-		for (int block : usedBlocks) {
-			int pairBlock = block ^ inputDiff;
+			int cipherBlock = encryptedBlocks[block];
+			int cipherBLockHatch = encryptedBlocks[blockHatch];
 
-			int cipherText = encryptedBlocks[block];
-			int pairCipherText = encryptedBlocks[pairBlock];
+			int realDiff = PS[cipherBlock ^ key] ^ PS[cipherBLockHatch ^ key];
 
-			int actualDiff = reversePS[cipherText ^ key] ^ reversePS[pairCipherText ^ key];
-
-			if (actualDiff == diff) {
-				coincides++;
+			if (realDiff == diff)
+			{
+				numOfCoincidences++;
 			}
 		}
 
-		if (coincides >= candidateCoincides) {
-			candidateCoincides = coincides;
+		if (numOfCoincidences >= candidateCoicidences)
+		{
+			candidateCoicidences = numOfCoincidences;
 			keyCandidate = key;
 		}
 
-		if (key % 1000 == 0) {
-			printf("%d done, candidate: %x, candidateCoincides: %d\n", key, keyCandidate, candidateCoincides);
+		if (key % 1000 == 0)
+		{
+			printf("%d viewed, candidate: %x, candidateCoicidences: %d\n", key, keyCandidate, candidateCoicidences);
 		}
 	}
 
 	return keyCandidate;
+}
+
+
+void HeysAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
+{
+	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
+	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
+	double boundary = 8.0 / static_cast<double>(BLOCKS_NUMBER);
+
+	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
+
+	Comparator compFunctor = [](std::pair<int, double> elem1, std::pair<int, double> elem2)
+	{
+		return elem1.second > elem2.second;
+	};
+
+	std::set<std::pair<int, double>, Comparator> setOfDiff(resultDiffs.begin(), resultDiffs.end(), compFunctor);
+
+
+	for (std::pair<int, double> element : setOfDiff)
+	{
+		if (element.second > boundary && HeysAnalysis::isNFragmentsActive(element.first, 4))
+		{
+			printf("diff: %x :: prob: %f\n", element.first, element.second);
+		}
+	}
 }
 
 

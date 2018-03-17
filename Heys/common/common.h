@@ -14,7 +14,7 @@
 #include <functional>
 
 
-using byte_t     =uint8_t;
+using byte_t     = uint8_t;
 using nibble_t   = uint8_t;             
 using block_t    = uint16_t; 
 using roundKey_t = uint16_t;

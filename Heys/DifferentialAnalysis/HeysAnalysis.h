@@ -18,13 +18,14 @@ public:
 	static int  saveDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox, const std::string& filename);
 
 	static void calcFullDPTable(std::vector<std::vector<int>>& dPTable, int sBoxNumber, const std::string& filename);
-	static void calcLineOfDPTable(std::vector<int>& lineOfDPTable, int alfa, int sBoxNumber);
+	static void calcLineOfDPTable(std::vector<int>& lineOfDPTable, int differential, int sBoxNumber);
 
 	static std::map<int,double> differentialSearch(int a, int sBoxNumber);
-	static int attackAttempt(int sBoxNumber, int inputDiff, int diff, double prop);
+	static int attackAttempt(int sBoxNumber, int inputDiff, int differential, double probabilities);
 
+	static void printDifferentials(std::map<int, double>& resultDiffs);
 	static void encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std::string& to);
-	static bool isNFragmentsActive(int diff, int numberOfFragments);
+	static bool isNFragmentsActive(int differential, int numberOfFragments);
 private:
 	
 };
