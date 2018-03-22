@@ -2,7 +2,8 @@
 #include "HeysAnalysis.h"
 #include "../common/io.h"
 #include "../HeysCipher/HeysCipher.h"
-#include <time.h>
+
+
 
 void HeysAnalysis::substituion(mode_t mode, block_t& block, int sBoxNumber)
 {
@@ -223,7 +224,8 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 
 	std::map<int, double> result;
 
-	double prob[5] = { 0.124, 0.00195, 0.00031, 0.0002, 0.000011 }; // emperical probabilities for 4_sBox
+	double prob[5] = { 0.124, 0.000195, 0.0003, 0.00005, 0.00005 }; // emperical probabilities for 4_sBox
+	//double prob[5] = { 0.124, 0.000195, 0.0001, 0.00005, 0.00005 }; // emperical probabilities for 4_sBox
 
 
 	double* currentListDiffProbs = new double[BLOCKS_NUMBER];
@@ -310,27 +312,25 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 	return result;
 }
 
-int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, int diff, double diffProb)
+int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> diffs, double diffProb)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 
-	//int textNumber = (int)(1.0 / (diffProb - 1.0 / BLOCKS_NUMBER));
-	//printf("textNumber = %d ",textNumber);
-
-	int textNumber = 16000;
+	int textNumber = (int)(8.0 / (diffProb - 1.0 / BLOCKS_NUMBER));
+	printf("textNumber = %d\n",textNumber);
 
 	FileReader fr;
 
 	data_t allBlocks = {};
 	data_t encryptedBlocks = {};
-
-	//for (int i = 0; i < BLOCKS_NUMBER; i++)
-	//{
-	//	allBlocks.push_back(i);
-	//}
+	data_t allKey = {};
+	for (int i = 0; i < BLOCKS_NUMBER; i++)
+	{
+		allBlocks.push_back(i);
+	}
 	//fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
-	//
+	
 
 	// encrypt data with exe ......
 	//encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
@@ -340,15 +340,17 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, int diff, double 
 	fr.getDataBlock(path::pathToTestSVFolder + "ct.txt", encryptedBlocks);
 	
 	srand(time(0));
+	
 	std::vector<block_t> preparedBlocks = {};
 	for (int j = 0; j < textNumber; ++j)
 	{
-		int r = rand() % 65536;
 		block_t block;
 		do
 		{
-			block = rand() % 65536;
-		} while (std::find(preparedBlocks.begin(), preparedBlocks.end(), block) != preparedBlocks.end());
+			block = rand() % 65536;		
+		} while ( (std::find(preparedBlocks.begin(), preparedBlocks.end(), block) != preparedBlocks.end()) 
+			&& isNFragmentsActive(block, 0) && isNFragmentsActive(block, 1) && isNFragmentsActive(block, 2));
+
 		preparedBlocks.push_back(block);
 	}
 
@@ -370,7 +372,7 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, int diff, double 
 	for (int key = 0; key < BLOCKS_NUMBER; key++)
 	{
 		int numOfCoincidences = 0;
-
+		
 		for (int block : preparedBlocks)
 		{
 			int blockHatch = block ^ inputDiff;
@@ -380,33 +382,71 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, int diff, double 
 
 			int realDiff = PS[cipherBlock ^ key] ^ PS[cipherBLockHatch ^ key];
 
-			if (realDiff == diff)
+			for (auto diff : diffs)
 			{
-				numOfCoincidences++;
+				if (realDiff == diff)
+				{
+					numOfCoincidences++;
+				}
 			}
 		}
 
-		if (numOfCoincidences >= candidateCoicidences)
+		if (numOfCoincidences > candidateCoicidences)
 		{
 			candidateCoicidences = numOfCoincidences;
 			keyCandidate = key;
 		}
 
+
 		if (key % 1000 == 0)
 		{
-			printf("%d viewed, candidate: %x, candidateCoicidences: %d\n", key, keyCandidate, candidateCoicidences);
+			printf("%d viewed, candidate: %x, coicidences: %d\n", key, keyCandidate, candidateCoicidences);
 		}
 	}
-
+	printf("key[6] = %x\n",keyCandidate);
 	return keyCandidate;
 }
 
+
+std::vector<int> HeysAnalysis::getMostProbDiff(int inputDiff, int diffsNumber, int sBoxNumber)
+{
+	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
+	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
+	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
+
+	auto resultDiffs = HeysAnalysis::differentialSearch(inputDiff, sBoxNumber);
+
+	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
+
+	Comparator compFunctor = [](std::pair<int, double> elem1, std::pair<int, double> elem2)
+	{
+		return elem1.second > elem2.second;
+	};
+
+	std::set<std::pair<int, double>, Comparator> setOfDiff(resultDiffs.begin(), resultDiffs.end(), compFunctor);
+
+	std::vector<int> result = {};
+	int ctr = 0;
+	
+	for (std::pair<int, double> element : setOfDiff)
+	{
+		if(HeysAnalysis::isNFragmentsActive(element.first, 4))
+			ctr++;
+		
+		if(ctr<=diffsNumber && HeysAnalysis::isNFragmentsActive(element.first, 4))
+		{
+			result.push_back(element.first);
+		}
+	}
+
+	return result;
+}
 
 void HeysAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 8.0 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
 

@@ -1,0 +1,172 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian,ukrainian]{babel}
+\usepackage{indentfirst}
+\usepackage{misccorr}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{euscript}  
+\usepackage{slashbox}
+\renewcommand{\baselinestretch}{1}
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+ \hypersetup{pdfstartview=FitH,  linkcolor=linkcolor,urlcolor=urlcolor, colorlinks=true}
+ % Цвета для гиперссылок
+\definecolor{linkcolor}{HTML}{799B03}
+\definecolor{urlcolor}{HTML}{799B03} 
+
+%\newfontfamily\subsubsectionfont[Color=Black]{Times New Roman}
+\usepackage{amsthm,amsfonts,amsmath,amssymb,amscd,mathtools}  % Математические дополнения от AMS
+\usepackage{indentfirst}                            % Красная строка
+\usepackage[singlelinecheck=off,center]{caption}    % Многострочные подписи
+\usepackage{soul}                                   % Поддержка переносоустойчивых подчёркиваний и зачёркиваний
+\usepackage{icomma}                                 % Запятая в десятичных дробях
+\usepackage{tocloft}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+%%% Цвета %%%
+
+%% Номера формул
+\mathtoolsset{showonlyrefs=true} % Показывать номера только у тех формул, на которые есть \eqref{} в тексте.
+
+\setcounter{tocdepth}{2} % глубина оглавления
+
+\usepackage{geometry} % Меняем поля страницы
+\geometry{a4paper,top=2cm,bottom=2cm,left=2.5cm,right=1cm}
+\linespread{1.0}                    % Одинарный интервал
+\sloppy                             % Избавляемся от переполнений
+\clubpenalty=10000                  % Запрещаем разрыв страницы после первой строки абзаца
+\widowpenalty=10000                 % Запрещаем разрыв страницы после последней строки абзаца
+
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{enumitem}
+\usepackage{marvosym}
+
+\begin{document}
+\begin{titlepage}
+  \begin{center}
+
+\begin{figure}
+  \centering
+    \includegraphics{shapkaKPI}
+\end{figure}
+
+ \Large \textbf{МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ}\\
+      \textbf{ Національний технічний університет України\\
+      “Київський політехнічний інститут”}\\
+
+       \vspace{2 cm}
+    
+РОЗДІЛИ СУЧАСНОЇ КРИПТОЛОГІЇ\\
+Комп’ютерний практикум №1\\
+\vspace{1 cm}
+Диференціальний криптоаналіз блокових шифрів \\
+    \vfill
+    \vfill
+  
+\newlength{\ML}
+\settowidth{\ML}{«\underline{\hspace{0.7cm}}» \underline{\hspace{2cm}}}
+\hfill\begin{minipage}{0.4\textwidth}
+ \textbf{Виконали:}\\
+ студенти групи ФІ-33\\
+ Грубіян Євгеній\\
+ Свічкарьов Іван\\
+ Варіант -- 4 \\
+ \textbf{Прийняв:}\\
+ Деркач .\\
+\end{minipage}%
+\vfill
+\vfill  
+ 
+
+  
+\begin{center}
+  Київ\\
+  2018
+\end{center}
+\end{center}
+\end{titlepage}
+
+\setcounter{page}{2} % начать нумерацию с номера 2
+
+\section{Мета роботи}
+
+Опанування сучасних методів криптоаналізу блокових шифрів, набуття навичок у дослідженні стійкості блокових шифрів до диференціального криптоаналізу
+
+\section{Постановка задачі}
+
+\begin{enumerate}
+\item 
+Реалізувати пошук високоімовірних п'ятираундових диференціалів шифру Хейса методом <<гілок та границь>>. Для пошуку рекомендується використовувати початкові різниці $\alpha$ із однією ненульовою тетрадою (це дає змогу максимізувати імовірності на перших етапах пошуку). Якщо у вихідній різниці будуть наявні нульові тетради, це може ускладнити проведення атаки: окремі біти ключа можуть не відновитись через брак статистичної інформації.
+\item
+Реалізувати атаку на сьомий раундовий ключ шифру Хейса. Для побудови атаки використати знайдені на попередньому кроці диференціали із високою імовірністю.
+\end{enumerate}
+
+
+\section{Хід роботи}
+
+
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\backslashbox{$\alpha$}{$\beta$}  & 0  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & A & B & C & D & E & F \\ \hline
+0 & 16 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+1 & 0  & 2 & 0 & 2 & 0 & 2 & 0 & 2 & 0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 \\ \hline
+2 & 0  & 0 & 2 & 0 & 0 & 0 & 0 & 2 & 0 & 0 & 2 & 0 & 2 & 2 & 2 & 4 \\ \hline
+3 & 0  & 0 & 2 & 2 & 2 & 2 & 0 & 0 & 2 & 0 & 0 & 2 & 2 & 0 & 0 & 2 \\ \hline
+4 & 0  & 2 & 2 & 2 & 2 & 0 & 0 & 0 & 2 & 2 & 0 & 2 & 0 & 0 & 2 & 0 \\ \hline
+5 & 0  & 4 & 2 & 0 & 2 & 0 & 2 & 2 & 2 & 0 & 0 & 0 & 0 & 0 & 0 & 2 \\ \hline
+6 & 0  & 0 & 0 & 4 & 2 & 0 & 0 & 2 & 0 & 0 & 0 & 0 & 4 & 2 & 2 & 0 \\ \hline
+7 & 0  & 0 & 0 & 2 & 0 & 0 & 2 & 0 & 2 & 2 & 0 & 2 & 0 & 4 & 0 & 2 \\ \hline
+8 & 0  & 0 & 0 & 0 & 0 & 2 & 0 & 2 & 2 & 2 & 2 & 2 & 2 & 0 & 2 & 0 \\ \hline
+9 & 0  & 2 & 0 & 0 & 0 & 2 & 4 & 0 & 0 & 0 & 0 & 2 & 2 & 2 & 2 & 0 \\ \hline
+A & 0  & 0 & 2 & 2 & 0 & 4 & 2 & 2 & 0 & 4 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+B & 0  & 0 & 2 & 2 & 2 & 0 & 2 & 0 & 0 & 2 & 2 & 0 & 4 & 0 & 0 & 0 \\ \hline
+C & 0  & 2 & 0 & 0 & 2 & 2 & 0 & 2 & 0 & 4 & 2 & 0 & 0 & 2 & 0 & 0 \\ \hline
+D & 0  & 0 & 0 & 0 & 2 & 0 & 2 & 0 & 2 & 0 & 2 & 0 & 0 & 0 & 4 & 4 \\ \hline
+E & 0  & 0 & 2 & 0 & 2 & 0 & 2 & 2 & 0 & 0 & 2 & 4 & 0 & 2 & 0 & 0 \\ \hline
+F & 0  & 4 & 2 & 0 & 0 & 2 & 0 & 0 & 4 & 0 & 2 & 0 & 0 & 2 & 0 & 0 \\ \hline
+\end{tabular}
+\caption{Таблиця диференціальних імовірностей 4-ого S-блоку}
+\label{tab:sBoxDiffTab}
+\end{table}
+
+Пошук високоімовірних диференціалів відбувався за методов <<гілок та границь>>. 
+Для прискорення пошуку були обрані такі порогові значення для імовірностей раундових диференціалів : $\{ 0.124, 0.00195, 0.0003, 0.00005, 0.00005 \}$.\par
+Початкові різниці $\alpha$ обиралися із однією ненульовою тетрадою, а вихідні різниці відбиралися із відсутніми нульовими тетрадами. Загалом, щоб атака була успішною з високою імовірністю, можна взяти 3 самі імовірні диференціали із зазначеними $\alpha$ у таблиці \ref{tab:diffs}, використовуючи 16000 текстів. Щоб атака була успішною для деякого окремого диференцілу треба взяти $\frac{16}{p}$ текстів, де $p$ -- імовірність відповідного диференціалу.
+Формат таблиці \ref{tab:diffs} -- {імовірність|кількість співпадінь $\beta$ із обрахунковою різницею пари текстів, розшифрованих на один раунд|у скількі разів ключ домінує над іншими}. Другий, та третій параметр зазначені чисто для того, щоб подивитися, яка доля співпадінь може припадати на бажаний ключ.
+
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\backslashbox{$\alpha$}{$\beta$}       & 1111                        & 2222                                               & 4264                        & 4444                        & 8888                        \\ \hline
+0003 &                               & 337|40|1,42          &                                                             &                               & 138 | 22 | 1,66          \\ \hline
+0005 & \textbf{}                     & 294|24|1,71          & \textbf{}                                          &                               & 133 | 14 | 1,40          \\ \hline
+0006 &                               & \textbf{681|38|1,46} &                                                             &                               & \textbf{286 | 36 | 2,25} \\ \hline
+0009 &                               & \textbf{493|40|2,00} &                                                              &                               & 209|24|2,00          \\ \hline
+000B &                               & \textbf{424|46|1,64} &                                                              &                               & 165|32|1,60          \\ \hline
+000D & \textbf{}                     & \textbf{273|30|2,14} & \textbf{}                                          & \textbf{}                     & 103|16|1,60          \\ \hline
+0600 & \textbf{454|26|1,30} &            &                                                              &                               &                               \\ \hline
+6000 & \textbf{375|36|2,00} &                                & \textbf{342|16|1,14} & \textbf{711|22|1,83} &                               \\ \hline
+9000 & \textbf{260|22|2,20} &                                                             &                               & 530|12|1,20          &                               \\ \hline
+B000 & \textbf{234|28|2,33} &                                                              & 209|16|1,60          & 471|20|1,43          &                               \\ \hline
+D000 &                      &                                                       & \textbf{307|34|2,42} &                               \\ \hline
+\end{tabular}
+\caption{Таблиця диференціальній імовірностей, $10^{-6}$}
+\label{tab:diffs}
+\end{table}
+
+Гарні початкові різниці $\alpha = \{0x0006,0x6000\}$,  
+
+
+\section{Висновки}
+
+\end{document}

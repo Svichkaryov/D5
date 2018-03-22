@@ -19,7 +19,7 @@ public:
 	static int getCipherParam(cipherParam param);
 
 private:
-	static const int ROUNDS_NUMBER            = 6;
+	static const int ROUNDS_NUMBER       = 6;
 	static const int BLOCK_SIZE          = 16;
 	static const int ROUND_KEY_SIZE      = 16;
 	static const int KEY_SIZE            = 112;
