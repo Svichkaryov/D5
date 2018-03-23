@@ -224,8 +224,8 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 
 	std::map<int, double> result;
 
-	double prob[5] = { 0.124, 0.000195, 0.0003, 0.00005, 0.00005 }; // emperical probabilities for 4_sBox
-	//double prob[5] = { 0.124, 0.000195, 0.0001, 0.00005, 0.00005 }; // emperical probabilities for 4_sBox
+	double prob[5] = { 0.124, 0.003, 0.0003, 0.0003, 0.0003 }; // emperical probabilities for 4_sBox
+	//double prob[5] = { 0.124, 0.000195, 0.0003, 0.00005, 0.00005 }; // emperical probabilities for 4_sBox
 
 
 	double* currentListDiffProbs = new double[BLOCKS_NUMBER];
@@ -238,9 +238,9 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 
 	double* nextListDiffProbs = new double[BLOCKS_NUMBER];
 
-	for (int round = 1; round < ROUNDS_NUMBER; round++)
+	for (int round = 1; round < 6; round++)
 	{
-		//printf("round %d:\n", round);
+		printf("round %d:\n", round);
 		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
 			nextListDiffProbs[i] = -1;
@@ -290,7 +290,7 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 		{
 			if (currentListDiffProbs[i] > 0)
 			{
-				printf("round: %d, diff: %d, prob: %f\n", round, i, currentListDiffProbs[i]);
+				printf("round: %d, diff: %x, prob: %f\n", round, i, currentListDiffProbs[i]);
 			}
 		}*/
 
@@ -331,9 +331,8 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> 
 	}
 	//fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
 	
-
 	// encrypt data with exe ......
-	//encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
+	// encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
 
 	// continue 
 
@@ -396,7 +395,6 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> 
 			candidateCoicidences = numOfCoincidences;
 			keyCandidate = key;
 		}
-
 
 		if (key % 1000 == 0)
 		{
@@ -486,6 +484,7 @@ void HeysAnalysis::encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std::st
 	HC.run(ENCRYPT, pt, ct);
 	fr.setDataBlock(ct, to);
 }
+
 
 bool HeysAnalysis::isNFragmentsActive(int diff, int numberOfFragments)
 {
