@@ -21,7 +21,7 @@ public:
 	static void calcLineOfDPTable(std::vector<int>& lineOfDPTable, int differential, int sBoxNumber);
 
 	static std::map<int,double> differentialSearch(int a, int sBoxNumber);
-	static int attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> differential, double probabilities);
+	static int attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> differentials, double probabilities);
 
 	static std::vector<int> getMostProbDiff(int inputDiff, int diffsNumber, int sBoxNumber);
 	static void printDifferentials(std::map<int, double>& resultDiffs);
