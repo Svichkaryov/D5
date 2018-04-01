@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "HeysAnalysis.h"
+#include "HeysDiffAnalysis.h"
 #include "../common/io.h"
 #include "../HeysCipher/HeysCipher.h"
 
 
 
-void HeysAnalysis::substituion(mode_t mode, block_t& block, int sBoxNumber)
+void HeysDiffAnalysis::substituion(mode_t mode, block_t& block, int sBoxNumber)
 {
 	std::array<nibble_t,16> _sBox;
 	switch (mode)
@@ -43,21 +43,21 @@ void HeysAnalysis::substituion(mode_t mode, block_t& block, int sBoxNumber)
 	block |= iSBoxOutput;
 }
 
-void HeysAnalysis::permutation(block_t & block)
+void HeysDiffAnalysis::permutation(block_t & block)
 {
 	block_t temp_block = block;
 	block = 0;
 
 	block |= (temp_block & 0x8421) << 0;
-	block |= (temp_block & 0x842) << 3;
-	block |= (temp_block & 0x84) << 6;
-	block |= (temp_block & 0x8) << 9;
+	block |= (temp_block & 0x8420) << 3;
+	block |= (temp_block & 0x8400) << 6;
+	block |= (temp_block & 0x8000) << 9;
 	block |= (temp_block & 0x4210) >> 3;
 	block |= (temp_block & 0x2100) >> 6;
 	block |= (temp_block & 0x1000) >> 9;
 }
 
-void HeysAnalysis::calcDPforSBox(std::array<std::array<double, 16>, 16>& dPSBox, int sBoxNumber)
+void HeysDiffAnalysis::calcDPforSBox(std::array<std::array<double, 16>, 16>& dPSBox, int sBoxNumber)
 {
 	std::array<nibble_t, 16>sbox = sBoxes::sBoxes[2 * sBoxNumber - 2];	
 
@@ -75,7 +75,7 @@ void HeysAnalysis::calcDPforSBox(std::array<std::array<double, 16>, 16>& dPSBox,
 
 }
 
-void HeysAnalysis::printDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox)
+void HeysDiffAnalysis::printDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox)
 {
 	for (int i = 0; i < 16; ++i)
 	{
@@ -87,7 +87,7 @@ void HeysAnalysis::printDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox)
 	}
 }
 
-int HeysAnalysis::saveDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox, const std::string & filename)
+int HeysDiffAnalysis::saveDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox, const std::string & filename)
 {
 	FileReader FR;
 	std::ofstream out(filename);
@@ -120,7 +120,7 @@ int HeysAnalysis::saveDPForSBox(std::array<std::array<int, 16>, 16>& dPSBox, con
 	return 1;
 }
 
-void HeysAnalysis::calcFullDPTable(std::vector<std::vector<int>>& dPTable, int sBoxNumber, const std::string& filename)
+void HeysDiffAnalysis::calcFullDPTable(std::vector<std::vector<int>>& dPTable, int sBoxNumber, const std::string& filename)
 {
 	FileReader FR;
 	std::ofstream out(filename);
@@ -178,7 +178,7 @@ void HeysAnalysis::calcFullDPTable(std::vector<std::vector<int>>& dPTable, int s
 }
 
 
-void HeysAnalysis::calcLineOfDPTable(std::vector<int>& lineOfDPTable, int alfa, int sBoxNumber)
+void HeysDiffAnalysis::calcLineOfDPTable(std::vector<int>& lineOfDPTable, int alfa, int sBoxNumber)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
@@ -216,7 +216,7 @@ void HeysAnalysis::calcLineOfDPTable(std::vector<int>& lineOfDPTable, int alfa, 
 }
 
 
-std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNumber)
+std::map<int, double> HeysDiffAnalysis::differentialSearch(int inputDiff, int sBoxNumber)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int ROUNDS_NUMBER = HeysCipher::getCipherParam(NUMBER_ROUNDS_P);
@@ -312,7 +312,7 @@ std::map<int, double> HeysAnalysis::differentialSearch(int inputDiff, int sBoxNu
 	return result;
 }
 
-int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> diffs, double diffProb)
+int HeysDiffAnalysis::diffAttackAttempt(int sBoxNumber, int inputDiff, std::vector<int> diffs, double diffProb)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
@@ -406,13 +406,13 @@ int HeysAnalysis::attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> 
 }
 
 
-std::vector<int> HeysAnalysis::getMostProbDiff(int inputDiff, int diffsNumber, int sBoxNumber)
+std::vector<int> HeysDiffAnalysis::getMostProbDiff(int inputDiff, int diffsNumber, int sBoxNumber)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
 
-	auto resultDiffs = HeysAnalysis::differentialSearch(inputDiff, sBoxNumber);
+	auto resultDiffs = HeysDiffAnalysis::differentialSearch(inputDiff, sBoxNumber);
 
 	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
 
@@ -428,10 +428,10 @@ std::vector<int> HeysAnalysis::getMostProbDiff(int inputDiff, int diffsNumber, i
 	
 	for (std::pair<int, double> element : setOfDiff)
 	{
-		if(HeysAnalysis::isNFragmentsActive(element.first, 4))
+		if(HeysDiffAnalysis::isNFragmentsActive(element.first, 4))
 			ctr++;
 		
-		if(ctr<=diffsNumber && HeysAnalysis::isNFragmentsActive(element.first, 4))
+		if(ctr<=diffsNumber && HeysDiffAnalysis::isNFragmentsActive(element.first, 4))
 		{
 			result.push_back(element.first);
 		}
@@ -440,7 +440,7 @@ std::vector<int> HeysAnalysis::getMostProbDiff(int inputDiff, int diffsNumber, i
 	return result;
 }
 
-void HeysAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
+void HeysDiffAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
@@ -458,7 +458,7 @@ void HeysAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
 
 	for (std::pair<int, double> element : setOfDiff)
 	{
-		if (element.second > boundary && HeysAnalysis::isNFragmentsActive(element.first, 4))
+		if (element.second > boundary && HeysDiffAnalysis::isNFragmentsActive(element.first, 4))
 		{
 			printf("diff: %x :: prob: %f\n", element.first, element.second);
 		}
@@ -466,7 +466,7 @@ void HeysAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
 }
 
 
-void HeysAnalysis::encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std::string& to)
+void HeysDiffAnalysis::encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std::string& to)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
@@ -486,7 +486,7 @@ void HeysAnalysis::encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std::st
 }
 
 
-bool HeysAnalysis::isNFragmentsActive(int diff, int numberOfFragments)
+bool HeysDiffAnalysis::isNFragmentsActive(int diff, int numberOfFragments)
 {
 	bool active = false;
 	int activeFragments = 0;

@@ -102,9 +102,9 @@ void HeysCipher::permutation(block_t& block)
 	block = 0;
 	
 	block |= (temp_block & 0x8421) << 0;        
-	block |= (temp_block & 0x842)  << 3;
-	block |= (temp_block & 0x84)   << 6;
-	block |= (temp_block & 0x8)    << 9;
+	block |= (temp_block & 0x8420) << 3;
+	block |= (temp_block & 0x8400) << 6;
+	block |= (temp_block & 0x8000) << 9;
 	block |= (temp_block & 0x4210) >> 3;
 	block |= (temp_block & 0x2100) >> 6;
 	block |= (temp_block & 0x1000) >> 9;

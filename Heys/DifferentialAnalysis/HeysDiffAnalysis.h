@@ -4,11 +4,11 @@
 
 
 
-class HeysAnalysis
+class HeysDiffAnalysis
 {
 public:
-	HeysAnalysis() = default;
-	~HeysAnalysis() = default;
+	HeysDiffAnalysis() = default;
+	~HeysDiffAnalysis() = default;
 
 	static void substituion(mode_t mode, block_t& block, int sBoxNumber);
 	static void permutation(block_t& block);
@@ -20,8 +20,8 @@ public:
 	static void calcFullDPTable(std::vector<std::vector<int>>& dPTable, int sBoxNumber, const std::string& filename);
 	static void calcLineOfDPTable(std::vector<int>& lineOfDPTable, int differential, int sBoxNumber);
 
-	static std::map<int,double> differentialSearch(int a, int sBoxNumber);
-	static int attackAttempt(int sBoxNumber, int inputDiff, std::vector<int> differentials, double probabilities);
+	static std::map<int,double> differentialSearch(int inputDiff, int sBoxNumber);
+	static int diffAttackAttempt(int sBoxNumber, int inputDiff, std::vector<int> differentials, double probabilities);
 
 	static std::vector<int> getMostProbDiff(int inputDiff, int diffsNumber, int sBoxNumber);
 	static void printDifferentials(std::map<int, double>& resultDiffs);

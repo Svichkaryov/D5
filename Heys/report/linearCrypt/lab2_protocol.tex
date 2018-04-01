@@ -1,0 +1,152 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian,ukrainian]{babel}
+\usepackage{indentfirst}
+\usepackage{misccorr}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{euscript}  
+\usepackage{slashbox}
+\renewcommand{\baselinestretch}{1}
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+ \hypersetup{pdfstartview=FitH,  linkcolor=linkcolor,urlcolor=urlcolor, colorlinks=true}
+ % Цвета для гиперссылок
+\definecolor{linkcolor}{HTML}{799B03}
+\definecolor{urlcolor}{HTML}{799B03} 
+
+%\newfontfamily\subsubsectionfont[Color=Black]{Times New Roman}
+\usepackage{amsthm,amsfonts,amsmath,amssymb,amscd,mathtools}  % Математические дополнения от AMS
+\usepackage{indentfirst}                            % Красная строка
+\usepackage[singlelinecheck=off,center]{caption}    % Многострочные подписи
+\usepackage{soul}                                   % Поддержка переносоустойчивых подчёркиваний и зачёркиваний
+\usepackage{icomma}                                 % Запятая в десятичных дробях
+\usepackage{tocloft}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+%%% Цвета %%%
+
+%% Номера формул
+\mathtoolsset{showonlyrefs=true} % Показывать номера только у тех формул, на которые есть \eqref{} в тексте.
+
+\setcounter{tocdepth}{2} % глубина оглавления
+
+\usepackage{geometry} % Меняем поля страницы
+\geometry{a4paper,top=2cm,bottom=2cm,left=2.5cm,right=1cm}
+\linespread{1.0}                    % Одинарный интервал
+\sloppy                             % Избавляемся от переполнений
+\clubpenalty=10000                  % Запрещаем разрыв страницы после первой строки абзаца
+\widowpenalty=10000                 % Запрещаем разрыв страницы после последней строки абзаца
+
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{enumitem}
+\usepackage{marvosym}
+
+\begin{document}
+\begin{titlepage}
+  \begin{center}
+
+\begin{figure}
+  \centering
+    \includegraphics{shapkaKPI}
+\end{figure}
+
+ \Large \textbf{МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ}\\
+      \textbf{ Національний технічний університет України\\
+      <<Київський політехнічний інститут>>}\\
+
+       \vspace{2 cm}
+    
+РОЗДІЛИ СУЧАСНОЇ КРИПТОЛОГІЇ\\
+Комп’ютерний практикум №2\\
+\vspace{1 cm}
+Лінійний криптоаналіз блокових шифрів \\
+    \vfill
+    \vfill
+  
+\newlength{\ML}
+\settowidth{\ML}{«\underline{\hspace{0.7cm}}» \underline{\hspace{2cm}}}
+\hfill\begin{minipage}{0.4\textwidth}
+ \textbf{Виконали:}\\
+ студенти групи ФІ-73мп\\
+ Грубіян Євгеній\\
+ Свічкарьов Іван\\
+ Варіант -- 4 \\
+ \textbf{Прийняв:}\\
+ Деркач А.Г\\
+\end{minipage}%
+\vfill
+\vfill  
+ 
+
+  
+\begin{center}
+  Київ\\
+  2018
+\end{center}
+\end{center}
+\end{titlepage}
+
+\setcounter{page}{2} % начать нумерацию с номера 2
+
+\section{Мета роботи}
+
+Опанування сучасних методів криптоаналізу блокових шифрів, набуття навичок у
+дослідженні стійкості блокових шифрів до лінійного криптоаналізу.
+
+\section{Постановка задачі}
+
+\begin{enumerate}
+\item 1 
+\item 2
+\end{enumerate}
+
+
+\section{Хід роботи}
+
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\backslashbox{$\alpha$}{$\beta$}  & 0  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & A & B & C & D & E & F \\ \hline
+0 & 16 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+1 & 0  & 2 & 0 & 2 & 0 & 2 & 0 & 2 & 0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 \\ \hline
+2 & 0  & 0 & 2 & 0 & 0 & 0 & 0 & 2 & 0 & 0 & 2 & 0 & 2 & 2 & 2 & 4 \\ \hline
+3 & 0  & 0 & 2 & 2 & 2 & 2 & 0 & 0 & 2 & 0 & 0 & 2 & 2 & 0 & 0 & 2 \\ \hline
+4 & 0  & 2 & 2 & 2 & 2 & 0 & 0 & 0 & 2 & 2 & 0 & 2 & 0 & 0 & 2 & 0 \\ \hline
+5 & 0  & 4 & 2 & 0 & 2 & 0 & 2 & 2 & 2 & 0 & 0 & 0 & 0 & 0 & 0 & 2 \\ \hline
+6 & 0  & 0 & 0 & 4 & 2 & 0 & 0 & 2 & 0 & 0 & 0 & 0 & 4 & 2 & 2 & 0 \\ \hline
+7 & 0  & 0 & 0 & 2 & 0 & 0 & 2 & 0 & 2 & 2 & 0 & 2 & 0 & 4 & 0 & 2 \\ \hline
+8 & 0  & 0 & 0 & 0 & 0 & 2 & 0 & 2 & 2 & 2 & 2 & 2 & 2 & 0 & 2 & 0 \\ \hline
+9 & 0  & 2 & 0 & 0 & 0 & 2 & 4 & 0 & 0 & 0 & 0 & 2 & 2 & 2 & 2 & 0 \\ \hline
+A & 0  & 0 & 2 & 2 & 0 & 4 & 2 & 2 & 0 & 4 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+B & 0  & 0 & 2 & 2 & 2 & 0 & 2 & 0 & 0 & 2 & 2 & 0 & 4 & 0 & 0 & 0 \\ \hline
+C & 0  & 2 & 0 & 0 & 2 & 2 & 0 & 2 & 0 & 4 & 2 & 0 & 0 & 2 & 0 & 0 \\ \hline
+D & 0  & 0 & 0 & 0 & 2 & 0 & 2 & 0 & 2 & 0 & 2 & 0 & 0 & 0 & 4 & 4 \\ \hline
+E & 0  & 0 & 2 & 0 & 2 & 0 & 2 & 2 & 0 & 0 & 2 & 4 & 0 & 2 & 0 & 0 \\ \hline
+F & 0  & 4 & 2 & 0 & 0 & 2 & 0 & 0 & 4 & 0 & 2 & 0 & 0 & 2 & 0 & 0 \\ \hline
+\end{tabular}
+\caption{Таблиця диференціальних імовірностей 4-ого S-блоку $\times \: 2^4$}
+\label{tab:sBoxDiffTab}
+\end{table}
+
+
+
+\section{Висновки}
+
+\begin{enumerate}
+
+\item 1
+\item 2
+\item 3
+\item 4
+
+\end{enumerate}
+
+
+\end{document}
