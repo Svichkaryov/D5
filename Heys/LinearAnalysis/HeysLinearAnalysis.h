@@ -20,10 +20,10 @@ public:
 	static int scalarMul(int a, int b);
 	static int singleBitCount(int num);
 	static std::map<int,double> getApproxWithHighLP(int inputAlfa, int approxsNumber, int sBoxNumber);
-	static std::vector<std::tuple<int, int, double>> accumulationApproxWithHighLP();
+	static std::vector<std::tuple<int, int, double>> accumulationApproxWithHighLP(const std::string& filename);
 	static void printApprox(std::map<int, double>& resultDiffs);
 	static bool isNFragmentsActive(int diff, int numberOfFragments);
-	static std::vector<std::tuple<int, int, double>> deserealize(std::string & filename);
+	static std::vector<std::tuple<int, int, double>> deserealizeApproxWithHighLP(const std::string & filename);
 private:
 
 };

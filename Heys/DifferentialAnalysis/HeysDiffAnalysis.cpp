@@ -321,25 +321,26 @@ int HeysDiffAnalysis::diffAttackAttempt(int sBoxNumber, int inputDiff, std::vect
 
 	FileReader fr;
 
+	/*
 	data_t allBlocks = {};
-	data_t encryptedBlocks = {};
-	data_t allKey = {};
 	for (int i = 0; i < BLOCKS_NUMBER; i++)
 	{
 		allBlocks.push_back(i);
 	}
-	//fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
-	
+	fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
+	*/
+
 	// encrypt data with exe ......
 	// encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
 
 	// continue 
 
+	data_t encryptedBlocks = {};
 	fr.getDataBlock(path::pathToTestSVFolder + "ct.txt", encryptedBlocks);
 	
 	srand(time(0));
 	
-	std::vector<block_t> preparedBlocks = {};
+	data_t preparedBlocks = {};
 	for (int j = 0; j < textNumber; ++j)
 	{
 		block_t block;

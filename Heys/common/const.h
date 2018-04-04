@@ -11,7 +11,9 @@ namespace path
 	extern const std::string cipherText;
 	extern const std::string key;
 
-	extern const std::string pathToTableInfo;
+
+	extern const std::string pathToDiffTableInfo;
+	extern const std::string pathToApproxWithHighLP;
 }
 
 

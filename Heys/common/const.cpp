@@ -10,7 +10,8 @@ namespace path
 	const std::string cipherText         = pathToTestFolder + "ct.txt";
 	const std::string key                = pathToTestFolder + "key.txt";
 
-	const std::string pathToTableInfo    = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/DifferentialAnalysis/tablesInfo/";
+	const std::string pathToDiffTableInfo    = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/DifferentialAnalysis/tablesInfo/";
+	const std::string pathToApproxWithHighLP = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/LinearAnalysis/tablesInfo/";
 }
 
 namespace sBoxes

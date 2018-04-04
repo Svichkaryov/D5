@@ -87,10 +87,6 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 	int alfa_2 = (alfa >> 8) & 0xF;
 	int alfa_3 = (alfa >> 12) & 0xF;
 
-	uint32_t numeratorOfCorrelation[UINT16_MAX + 1];
-	std::vector<uint32_t> biasValues = {};
-	int biasCount = 0;
-
 	for (int beta = 0; beta < BLOCKS_NUMBER; ++beta)
 	{
 		int beta_0 = (beta >> 0) & 0xF;
@@ -102,7 +98,7 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 		// Pr(x_1 ^ x_2 ^ x_3 ^ x_4 = 1) = |x_i,i={1,..,4}--independent|=
 		// = Pr(x_1 = 1, x_2 = 0, x_3 = 0, x_4 = 0) + ... + 
 		// + Pr(x_1 = 0, x_2 = 1, x_3 = 1, x_4 = 1) + ... = ...
-		// Pr(b = 1) = p, Pr(b = 0) = 1 - p; b~Bernoulli(p)
+		// Pr(b = 1) = p, Pr(b = 0) = 1 - p; b~Bernoulli(p), p=1/2 + s = (1-e)/2
 
 		// Pr(b_i = 1) = p_i, countOfSingle_i = 16*p_i
 		int countOfSingle_0 = lASBox[alfa_0][beta_0];
@@ -116,44 +112,24 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 		int countOfZero_2 = 16 - countOfSingle_2;
 		int countOfZero_3 = 16 - countOfSingle_3;
 
-		uint32_t sum = 0;
+		uint32_t numeratorOfProbability = 0;
 
-		sum += countOfSingle_0 * countOfZero_1   * countOfZero_2   * countOfZero_3;
-		sum += countOfZero_0 * countOfSingle_1 * countOfZero_2   * countOfZero_3;
-		sum += countOfZero_0 * countOfZero_1   * countOfSingle_2 * countOfZero_3;
-		sum += countOfZero_0 * countOfZero_1   * countOfZero_2   * countOfSingle_3;
+		numeratorOfProbability += countOfSingle_0 * countOfZero_1   * countOfZero_2   * countOfZero_3;
+		numeratorOfProbability += countOfZero_0 * countOfSingle_1 * countOfZero_2   * countOfZero_3;
+		numeratorOfProbability += countOfZero_0 * countOfZero_1   * countOfSingle_2 * countOfZero_3;
+		numeratorOfProbability += countOfZero_0 * countOfZero_1   * countOfZero_2   * countOfSingle_3;
 
-		sum += countOfZero_0 * countOfSingle_1 * countOfSingle_2 * countOfSingle_3;
-		sum += countOfSingle_0 * countOfZero_1   * countOfSingle_2 * countOfSingle_3;
-		sum += countOfSingle_0 * countOfSingle_1 * countOfZero_2   * countOfSingle_3;
-		sum += countOfSingle_0 * countOfSingle_1 * countOfSingle_2 * countOfZero_3;
+		numeratorOfProbability += countOfZero_0 * countOfSingle_1 * countOfSingle_2 * countOfSingle_3;
+		numeratorOfProbability += countOfSingle_0 * countOfZero_1   * countOfSingle_2 * countOfSingle_3;
+		numeratorOfProbability += countOfSingle_0 * countOfSingle_1 * countOfZero_2   * countOfSingle_3;
+		numeratorOfProbability += countOfSingle_0 * countOfSingle_1 * countOfSingle_2 * countOfZero_3;
 
-		numeratorOfCorrelation[beta] = sum;
-
-		if (sum != HALF_BLOCK_NUMBER)
+		if (numeratorOfProbability != HALF_BLOCK_NUMBER)
 		{
-			biasValues.push_back(0);
-			biasCount++;
-		}
-	}
-
-	int i = 0;
-
-	for (uint32_t block = 0; block < BLOCKS_NUMBER; ++block)
-	{
-		uint32_t numeratorOfCorrelation_block = numeratorOfCorrelation[block];
-
-		if (numeratorOfCorrelation_block != HALF_BLOCK_NUMBER)
-		{
-			block_t _block = static_cast<block_t>(block);
+			block_t _block = static_cast<block_t>(beta);
 			permutation(_block);
-			biasValues[i++] = _block | (numeratorOfCorrelation_block << BLOCK_SIZE);
+			linelATable.push_back(_block | (numeratorOfProbability << BLOCK_SIZE));
 		}
-	}
-
-	for (auto bv : biasValues)
-	{
-		linelATable.push_back(bv);
 	}
 }
 
@@ -201,7 +177,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 			{
 				uint32_t bANOC = blockAndNumeratorOfCorrelation;
 				int block = bANOC & 0xffff;
-				int numeratorOfCorrelation = bANOC >> 16;
+				int numeratorOfProbability = bANOC >> 16;
 
 				double currentPotential = nextListPotentials[block];
 				if (currentPotential < 0.0)
@@ -209,7 +185,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 					currentPotential = 0.0;
 				}
 
-				double correlation = 1 - 2 * (static_cast<double>(numeratorOfCorrelation) / static_cast<double>(BLOCKS_NUMBER));
+				double correlation = 1 - 2 * (static_cast<double>(numeratorOfProbability) / static_cast<double>(BLOCKS_NUMBER));
 				double potential = correlation * correlation;
 				nextListPotentials[block] = currentPotential + (potential * inputPotential);
 			}
@@ -276,25 +252,26 @@ std::map<int,int> HeysLinearAnalysis::linearAttackAttempt(int sBoxNumber, std::v
 
 	FileReader fr;
 
-	data_t allBlocks = {};
-	data_t encryptedBlocks = {};
-	data_t allKey = {};
+	/*
 	for (int i = 0; i < BLOCKS_NUMBER; i++)
 	{
 		allBlocks.push_back(i);
 	}
-	//fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
-
+	data_t allBlocks = {};
+	fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
+	*/
+	
 	// encrypt data with exe ......
 	// encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
 
 	// continue 
 
+	data_t encryptedBlocks = {};
 	fr.getDataBlock(path::pathToTestSVFolder + "ct.txt", encryptedBlocks);
 
 	srand(time(0));
 
-	std::vector<block_t> preparedBlocks = {};
+	data_t preparedBlocks = {};
 	for (int j = 0; j < textNumber; ++j)
 	{
 		block_t block;
@@ -449,7 +426,7 @@ void HeysLinearAnalysis::printApprox(std::map<int, double>& resultApprox)
 
 
 
-std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApproxWithHighLP()
+std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApproxWithHighLP(const std::string& filename)
 {
 	int alfa[60] = {
 		0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008,0x0009,0x000A,0x000B,0x000C,0x000D,0x000E,0x000F,
@@ -459,11 +436,11 @@ std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApprox
 	};
 	 
 	std::vector<std::tuple<int, int, double>> result = {};
-
-	std::ofstream out("approxWithHighLP.txt", std::ios::binary);
+	FileReader fr;
+	std::ofstream out(filename, std::ios::binary);
 	if (!out)
 	{
-		printf("Can't open %s file.\n", "approxWithHighLP.txt");
+		printf("Can't open %s file.\n", fr.getFileName(filename));
 		return std::vector<std::tuple<int, int, double>>();
 	}
 
@@ -501,7 +478,7 @@ bool HeysLinearAnalysis::isNFragmentsActive(int diff, int numberOfFragments)
 		return 0;
 }
 
-std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::deserealize(std::string& filename)
+std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::deserealizeApproxWithHighLP(const std::string& filename)
 {
 	std::vector<std::tuple<int, int, double>> approxLP;
 	FileReader fr;
