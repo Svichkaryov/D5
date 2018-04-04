@@ -198,7 +198,6 @@ void HeysDiffAnalysis::calcLineOfDPTable(std::vector<int>& lineOfDPTable, int al
 		SP[block] = _block;
 	}
 
-	
 	for (int x = 0; x < BLOCKS_NUMBER; ++x)
 	{
 		frequence[SP[x] ^ SP[x^alfa]] ++;
@@ -444,7 +443,7 @@ void HeysDiffAnalysis::printDifferentials(std::map<int, double>& resultDiffs)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 64.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
 

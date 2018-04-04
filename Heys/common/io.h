@@ -15,6 +15,7 @@ public:
 	int getDataBlock(const std::string& from, data_t& to);
 	int setDataBlock(const data_t& from, const std::string& to);
 	std::string readLineFromFile(const std::string& filename, int lineNumber);
+	std::tuple<int, int, double> split(const std::string & s, char delim);
 private:
 
 };

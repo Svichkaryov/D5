@@ -4,13 +4,13 @@
 
 namespace path
 {
-	const std::string pathToTestFolder   = "E:/VS_Proj/SV/Heys/Heys/Heys/test/testMyProg/";
-	const std::string pathToTestSVFolder = "E:/VS_Proj/SV/Heys/Heys/Heys/test/testSVProg/";
+	const std::string pathToTestFolder   = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/test/testMyProg/";
+	const std::string pathToTestSVFolder = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/test/testSVProg/";
 	const std::string plaintText         = pathToTestFolder + "pt.txt";
 	const std::string cipherText         = pathToTestFolder + "ct.txt";
 	const std::string key                = pathToTestFolder + "key.txt";
 
-	const std::string pathToTableInfo    = "E:/VS_Proj/SV/Heys/Heys/Heys/DifferentialAnalysis/tablesInfo/";
+	const std::string pathToTableInfo    = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/DifferentialAnalysis/tablesInfo/";
 }
 
 namespace sBoxes
