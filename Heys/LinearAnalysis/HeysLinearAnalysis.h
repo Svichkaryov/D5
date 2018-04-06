@@ -16,8 +16,8 @@ public:
 	static void permutation(block_t& block);
 
 	static std::map<int, double> linearApproximationsSearch(int alfa, int sBoxNumber);
-	static std::map<int,int> linearAttackAttempt(int sBoxNumber, std::vector<std::tuple<int, int, double>> approxAndLP);
-	static int scalarMul(int a, int b);
+	static std::vector<std::pair<int, int>> linearAttackAttempt(int sBoxNumber, std::vector<std::tuple<int, int, double>> approxAndLP);
+	static inline int scalarMul(int a, int b);
 	static int singleBitCount(int num);
 	static std::map<int,double> getApproxWithHighLP(int inputAlfa, int approxsNumber, int sBoxNumber);
 	static std::vector<std::tuple<int, int, double>> accumulationApproxWithHighLP(const std::string& filename);

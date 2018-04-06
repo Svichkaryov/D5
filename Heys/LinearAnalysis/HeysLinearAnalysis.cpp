@@ -233,7 +233,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 }
 
 
-std::map<int,int> HeysLinearAnalysis::linearAttackAttempt(int sBoxNumber, std::vector<std::tuple<int,int,double>> approxAndLP)
+std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBoxNumber, std::vector<std::tuple<int,int,double>> approxAndLP)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
@@ -247,7 +247,7 @@ std::map<int,int> HeysLinearAnalysis::linearAttackAttempt(int sBoxNumber, std::v
 	auto it_min_LP = std::min_element(std::begin(LP), std::end(LP)); 
 	double min_LP = *it_min_LP;
 
-	int textNumber = (int)(8.0 / min_LP);
+	int textNumber = (int)(16.0 / min_LP);
 	printf("textNumber = %d\n", textNumber);
 
 	FileReader fr;
@@ -271,10 +271,10 @@ std::map<int,int> HeysLinearAnalysis::linearAttackAttempt(int sBoxNumber, std::v
 
 	srand(time(0));
 
-	data_t preparedBlocks = {};
+	std::vector<int> preparedBlocks = {};
 	for (int j = 0; j < textNumber; ++j)
 	{
-		block_t block;
+		int block;
 		do
 		{
 			block = rand() % 65536;
@@ -296,69 +296,104 @@ std::map<int,int> HeysLinearAnalysis::linearAttackAttempt(int sBoxNumber, std::v
 		PS[block] = _block;
 	}
 
-	std::map<int, int> keysCand = {};
-	for (int approx = 0; approx < 20; ++approx)
+	auto sort_descent_pair = [](std::pair<int, int> const & a, std::pair<int, int> const & b)
 	{
-		printf("approx: %d\n", approx);
-		std::map<int, int> keys_ab = {};
-		int boundary = 10;
-		int map_keys_size = 0;
-		for (int key = 0; key < BLOCKS_NUMBER; key++)
-		{
-			int countZero = 0;
-			for (auto& block : preparedBlocks)
-			{
-				int cipherBlock = encryptedBlocks[block];
-				int cipherBLock_dec = PS[cipherBlock^key];
+		return a.second != b.second ? a.second > b.second : a.first > b.first;
+	};
 
-				int alfa = std::get<0>(approxAndLP.at(approx));
-				int beta = std::get<1>(approxAndLP.at(approx));
-				if ((scalarMul(alfa, block) ^ scalarMul(beta, cipherBLock_dec)) == 0)
-					countZero++;
-			}
-			int countSingle = BLOCKS_NUMBER - countZero;
-			int u = abs(countZero - countSingle);
-			
-			if (map_keys_size < 10)
-			{
-				map_keys_size++;
-				keys_ab.insert(std::pair<int, int>(key, u));
-			}
-			for (auto it = keys_ab.begin(); it!=keys_ab.end();++it) 
-			{
-				if (u > it->second)	
-				{
-					keys_ab[it->first] = key;
-					keys_ab[it->second] = u;
-				}
-			}
-		}
-		map_keys_size = 0;
-		for (auto& _key : keys_ab)
-		{
-			keysCand.insert(_key);
-		}
-		keys_ab.clear();
+	auto sort_descent_int = [](int& a, int& b)
+	{
+		return a > b;
+	};
+
+
+	std::ofstream out(path::pathToApproxWithHighLP+"key_u.txt", std::ios::binary);
+	if (!out)
+	{
+		printf("Can't open %s file.\n", fr.getFileName(path::pathToApproxWithHighLP + "key_u.txt"));
+		return std::vector<std::pair<int, int>>();
 	}
 
 
-	return keysCand;
+	std::vector<int> keysCand = {};
+	for (int approx = 0; approx < 500; ++approx)
+	{
+		printf("approx: %d\n", approx);
+		std::vector<std::pair<int, int>> keys_ab = {};
+		int alfa = std::get<0>(approxAndLP.at(approx));
+		int beta = std::get<1>(approxAndLP.at(approx));
+
+		for (int key = 0; key < BLOCKS_NUMBER; ++key)
+		{
+			int countZero = 0;
+
+			for (auto& block : preparedBlocks)
+			{
+				int cipherBlock = encryptedBlocks[block];
+				int cipherBLock_dec = PS[cipherBlock ^ key];
+
+				if (!(scalarMul(alfa, block) ^ scalarMul(beta, cipherBLock_dec)))
+					countZero++;
+			}
+		//	int countSingle = BLOCKS_NUMBER - countZero;
+			int u = abs(BLOCKS_NUMBER - countZero - countZero);
+		//	out << key << ";" << u << ";" << std::endl;
+			keys_ab.push_back(std::pair<int, int>(key, u));
+		}
+		std::sort(keys_ab.begin(), keys_ab.end(),sort_descent_pair);
+		
+		for (int i = 0; i < 1000; ++i)
+		{
+			keysCand.push_back(keys_ab[i].first);
+		}
+	}
+
+	auto keys = keysCand;
+	std::sort(keys.begin(), keys.end(),sort_descent_int);
+	keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
+
+	std::vector<std::pair<int, int>> l;
+	for (auto key : keys)
+	{
+		int result = std::count(keysCand.begin(), keysCand.end(), key);
+		l.push_back(std::pair<int, int>(key, result));
+	}
+
+	std::sort(l.begin(), l.end(), sort_descent_pair);
+	for (int i = 0; i < 50; ++i)
+	{
+		std::cout << "key: "<< l[i].first  << " | u= " << l[i].second << std::endl;
+		if (l[i].first == 56999)
+		{
+			std::cout << "YEEEEEEEEEEEEEEEEEEEE\n";
+		}
+	}
+
+
+	return l;
 }
 
 
 
-int HeysLinearAnalysis::scalarMul(int a, int b)
+inline int HeysLinearAnalysis::scalarMul(int a, int b)
 {
-	return singleBitCount(a & b) & 1;
+	int ab = a & b;
+	//int bitCount = static_cast<int>(log2(ab));
+	int result = 0;
+	for (int i = 0; i < 16; ++i)
+	{
+		result ^= (ab >> i) & 1;
+	}
+	return result;
 }
 
 
 int HeysLinearAnalysis::singleBitCount(int num)
 {
 	int ctr = 0;
-	int bitCount = static_cast<int>(log2(num));
+	int bitCount = (int)log2(num);
 
-	for (int i = 0; i <= bitCount; i++)
+	for (int i = 0; i <= bitCount; ++i)
 	{
 		if (((num >> i) & 1) == 1)
 			ctr++;
