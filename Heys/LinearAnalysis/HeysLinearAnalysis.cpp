@@ -65,6 +65,18 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 	const int BLOCKS_NUMBER     = 1 << BLOCK_SIZE;
 	const int HALF_BLOCK_NUMBER = BLOCKS_NUMBER >> 1;
 
+	std::vector<std::pair<int, int>> countOfSingleBitsOfInt = {};
+	for (int i = 0; i < BLOCKS_NUMBER; ++i)
+	{
+		int ctr = 0;
+		for (int j = 0; j < 16; ++j)
+		{
+			if ((i >> j) & 1)
+				ctr++;
+		}
+		countOfSingleBitsOfInt.push_back(std::pair<int, int>(i, ctr));
+	}
+
 	int lASBox[16][16];
 	std::array<nibble_t, 16>sbox = sBoxes::sBoxes[2 * sBoxNumber - 2];
 
@@ -77,7 +89,9 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 			{
 				block_t _x = static_cast<block_t>(x);
 				substituion(ENCRYPT, _x, sBoxNumber);
-				lASBox[alfa][beta] += scalarMul(alfa, x) ^ scalarMul(beta, _x);
+				int ctr1 = countOfSingleBitsOfInt[alfa&x].second;
+				int ctr2 = countOfSingleBitsOfInt[beta&_x].second;
+				lASBox[alfa][beta] += scalarMul(alfa, x,ctr1) ^ scalarMul(beta, _x,ctr2);
 			}
 		}
 	}
@@ -314,6 +328,18 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		return std::vector<std::pair<int, int>>();
 	}
 
+	std::vector<std::pair<int, int>> countOfSingleBitsOfInt = {};
+	for (int i = 0; i < BLOCKS_NUMBER; ++i)
+	{
+		int ctr = 0;
+		for (int j = 0; j < 16; ++j)
+		{
+			if ((i >> j) & 1)
+				ctr++;
+		}
+		countOfSingleBitsOfInt.push_back(std::pair<int, int>(i, ctr));
+	}
+
 
 	std::vector<int> keysCand = {};
 	for (int approx = 0; approx < 500; ++approx)
@@ -331,18 +357,19 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 			{
 				int cipherBlock = encryptedBlocks[block];
 				int cipherBLock_dec = PS[cipherBlock ^ key];
-
-				if (!(scalarMul(alfa, block) ^ scalarMul(beta, cipherBLock_dec)))
+				int ctr1 = countOfSingleBitsOfInt[alfa&block].second;
+				int ctr2 = countOfSingleBitsOfInt[beta&cipherBLock_dec].second;
+				if (!((ctr1&1) ^ (ctr2&1)))
 					countZero++;
 			}
 		//	int countSingle = BLOCKS_NUMBER - countZero;
 			int u = abs(BLOCKS_NUMBER - countZero - countZero);
-		//	out << key << ";" << u << ";" << std::endl;
+			out << key << ";" << u << ";" << std::endl;
 			keys_ab.push_back(std::pair<int, int>(key, u));
 		}
 		std::sort(keys_ab.begin(), keys_ab.end(),sort_descent_pair);
 		
-		for (int i = 0; i < 1000; ++i)
+		for (int i = 0; i < 100; ++i)
 		{
 			keysCand.push_back(keys_ab[i].first);
 		}
@@ -360,7 +387,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	}
 
 	std::sort(l.begin(), l.end(), sort_descent_pair);
-	for (int i = 0; i < 50; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		std::cout << "key: "<< l[i].first  << " | u= " << l[i].second << std::endl;
 		if (l[i].first == 56999)
@@ -374,33 +401,14 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 }
 
 
-
-inline int HeysLinearAnalysis::scalarMul(int a, int b)
+inline int HeysLinearAnalysis::scalarMul(int a, int b,int ctr)
 {
 	int ab = a & b;
-	//int bitCount = static_cast<int>(log2(ab));
 	int result = 0;
-	for (int i = 0; i < 16; ++i)
-	{
-		result ^= (ab >> i) & 1;
-	}
+//	result = ctr
 	return result;
 }
 
-
-int HeysLinearAnalysis::singleBitCount(int num)
-{
-	int ctr = 0;
-	int bitCount = (int)log2(num);
-
-	for (int i = 0; i <= bitCount; ++i)
-	{
-		if (((num >> i) & 1) == 1)
-			ctr++;
-	}
-
-	return ctr;
-}
 
 std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int approxsNumber, int sBoxNumber)
 {
