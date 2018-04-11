@@ -245,7 +245,7 @@ std::map<int, double> HeysDiffAnalysis::differentialSearch(int inputDiff, int sB
 			nextListDiffProbs[i] = -1;
 		}
 
-		for (int inputDiff = 0; inputDiff < BLOCKS_NUMBER; inputDiff++)
+		for (int inputDiff = 0; inputDiff < BLOCKS_NUMBER; ++inputDiff)
 		{
 			double inputDiffProb = currentListDiffProbs[inputDiff];
 
@@ -272,7 +272,7 @@ std::map<int, double> HeysDiffAnalysis::differentialSearch(int inputDiff, int sB
 			}
 		}
 
-		for (int i = 0; i < BLOCKS_NUMBER; i++)
+		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
 			if (nextListDiffProbs[i] < prob[round - 1])
 			{
@@ -280,7 +280,7 @@ std::map<int, double> HeysDiffAnalysis::differentialSearch(int inputDiff, int sB
 			}
 		}
 
-		for (int i = 0; i < BLOCKS_NUMBER; i++)
+		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
 			currentListDiffProbs[i] = nextListDiffProbs[i];
 		}
