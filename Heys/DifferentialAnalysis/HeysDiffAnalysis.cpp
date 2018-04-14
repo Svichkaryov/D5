@@ -49,9 +49,9 @@ void HeysDiffAnalysis::permutation(block_t & block)
 	block = 0;
 
 	block |= (temp_block & 0x8421) << 0;
-	block |= (temp_block & 0x8420) << 3;
-	block |= (temp_block & 0x8400) << 6;
-	block |= (temp_block & 0x8000) << 9;
+	block |= (temp_block & 0x0842) << 3;
+	block |= (temp_block & 0x0084) << 6;
+	block |= (temp_block & 0x0008) << 9;
 	block |= (temp_block & 0x4210) >> 3;
 	block |= (temp_block & 0x2100) >> 6;
 	block |= (temp_block & 0x1000) >> 9;
@@ -316,7 +316,7 @@ int HeysDiffAnalysis::diffAttackAttempt(int sBoxNumber, int inputDiff, std::vect
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 
-	int textNumber = (int)(8.0 / (diffProb - 1.0 / BLOCKS_NUMBER));
+	int textNumber = (int)(16.0 / (diffProb - 1.0 / BLOCKS_NUMBER));
 	printf("textNumber = %d\n",textNumber);
 
 	FileReader fr;
@@ -379,7 +379,9 @@ int HeysDiffAnalysis::diffAttackAttempt(int sBoxNumber, int inputDiff, std::vect
 			int cipherBlock = encryptedBlocks[block];
 			int cipherBLockHatch = encryptedBlocks[blockHatch];
 
-			int realDiff = PS[cipherBlock ^ key] ^ PS[cipherBLockHatch ^ key];
+			int realDiff = PS[cipherBlock ^ key] ^ PS[cipherBLockHatch ^ key]; //find_key[6]
+			//int realDiff = PS[PS[cipherBlock ^ 0xDEA7] ^ key] ^ PS[PS[cipherBLockHatch ^ 0xDEA7] ^ key];
+			//int realDiff = PS[PS[PS[cipherBlock ^ 0xDEA7] ^ 0xB055] ^ key] ^ PS[PS[PS[cipherBLockHatch ^ 0xDEA7] ^ 0xB055] ^ key ];
 
 			for (auto diff : diffs)
 			{
@@ -475,7 +477,7 @@ void HeysDiffAnalysis::encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std
 	data_t ct = {};
 	FileReader fr;
 
-	for (int i = 0; i < BLOCKS_NUMBER; i++)
+	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
 		pt.push_back(i);
 	}

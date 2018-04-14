@@ -9,7 +9,7 @@ class HeysCipher
 public:
 	HeysCipher(int sBoxNumber) : sBox(sBoxes::sBoxes[2*sBoxNumber-2]), invSBox(sBoxes::sBoxes[2*sBoxNumber-1]) {};
 	HeysCipher(const RoundKey& roundKeys, int sBoxNumber) 
-		: m_roundKeys(roundKeys), sBox(sBoxes::sBoxes[2 * sBoxNumber - 2]), invSBox(sBoxes::sBoxes[2 * sBoxNumber - 1]) {} ;
+		: m_roundKeys(roundKeys), sBox(sBoxes::sBoxes[2 * sBoxNumber - 2]), invSBox(sBoxes::sBoxes[2 * sBoxNumber - 1]) {};
 	~HeysCipher() = default;
 
 	void run(mode_t mode, const data_t& input, data_t& output);

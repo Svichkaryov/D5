@@ -100,11 +100,11 @@ void HeysCipher::permutation(block_t& block)
 {
 	block_t temp_block = block;
 	block = 0;
-	
-	block |= (temp_block & 0x8421) << 0;        
-	block |= (temp_block & 0x8420) << 3;
-	block |= (temp_block & 0x8400) << 6;
-	block |= (temp_block & 0x8000) << 9;
+
+	block |= (temp_block & 0x8421) << 0;
+	block |= (temp_block & 0x0842) << 3;
+	block |= (temp_block & 0x0084) << 6;
+	block |= (temp_block & 0x0008) << 9;
 	block |= (temp_block & 0x4210) >> 3;
 	block |= (temp_block & 0x2100) >> 6;
 	block |= (temp_block & 0x1000) >> 9;

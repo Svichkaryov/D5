@@ -12,6 +12,7 @@ namespace path
 
 	const std::string pathToDiffTableInfo    = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/DifferentialAnalysis/tablesInfo/";
 	const std::string pathToApproxWithHighLP = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/LinearAnalysis/tablesInfo/";
+                                              
 }
 
 namespace sBoxes

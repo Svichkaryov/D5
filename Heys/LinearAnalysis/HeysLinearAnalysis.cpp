@@ -2,6 +2,7 @@
 #include "HeysLinearAnalysis.h"
 #include "../common/io.h"
 #include "../HeysCipher/HeysCipher.h"
+#include "../DifferentialAnalysis/HeysDiffAnalysis.h"
 
 
 
@@ -49,9 +50,9 @@ void HeysLinearAnalysis::permutation(block_t & block)
 	block = 0;
 
 	block |= (temp_block & 0x8421) << 0;
-	block |= (temp_block & 0x8420) << 3;
-	block |= (temp_block & 0x8400) << 6;
-	block |= (temp_block & 0x8000) << 9;
+	block |= (temp_block & 0x0842) << 3;
+	block |= (temp_block & 0x0084) << 6;
+	block |= (temp_block & 0x0008) << 9;
 	block |= (temp_block & 0x4210) >> 3;
 	block |= (temp_block & 0x2100) >> 6;
 	block |= (temp_block & 0x1000) >> 9;
@@ -122,18 +123,25 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 		int countOfZero_2 = 16 - countOfSingle_2;
 		int countOfZero_3 = 16 - countOfSingle_3;
 
-		uint32_t numeratorOfProbability = 0;
-
+		uint16_t numeratorOfProbability = 0;
+		/*
+		numeratorOfProbability = (countOfSingle_0 - countOfZero_0) * (countOfSingle_0 - countOfZero_0) *
+			(countOfSingle_1 - countOfZero_1) * (countOfSingle_1 - countOfZero_1) *
+			(countOfSingle_2 - countOfZero_2) * (countOfSingle_2 - countOfZero_2) *
+			(countOfSingle_3 - countOfZero_3) * (countOfSingle_3 - countOfZero_3);
+		*/
+		
+		
 		numeratorOfProbability += countOfSingle_0 * countOfZero_1   * countOfZero_2   * countOfZero_3;
-		numeratorOfProbability += countOfZero_0 * countOfSingle_1 * countOfZero_2   * countOfZero_3;
-		numeratorOfProbability += countOfZero_0 * countOfZero_1   * countOfSingle_2 * countOfZero_3;
-		numeratorOfProbability += countOfZero_0 * countOfZero_1   * countOfZero_2   * countOfSingle_3;
+		numeratorOfProbability += countOfZero_0   * countOfSingle_1 * countOfZero_2   * countOfZero_3;
+		numeratorOfProbability += countOfZero_0   * countOfZero_1   * countOfSingle_2 * countOfZero_3;
+		numeratorOfProbability += countOfZero_0   * countOfZero_1   * countOfZero_2   * countOfSingle_3;
 
-		numeratorOfProbability += countOfZero_0 * countOfSingle_1 * countOfSingle_2 * countOfSingle_3;
+		numeratorOfProbability += countOfZero_0   * countOfSingle_1 * countOfSingle_2 * countOfSingle_3;
 		numeratorOfProbability += countOfSingle_0 * countOfZero_1   * countOfSingle_2 * countOfSingle_3;
 		numeratorOfProbability += countOfSingle_0 * countOfSingle_1 * countOfZero_2   * countOfSingle_3;
 		numeratorOfProbability += countOfSingle_0 * countOfSingle_1 * countOfSingle_2 * countOfZero_3;
-
+		
 		if (numeratorOfProbability != HALF_BLOCK_NUMBER)
 		{
 			block_t _block = static_cast<block_t>(beta);
@@ -152,7 +160,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 
 	std::map<int, double> result;
 	
-	double prob[5] = { 0.2, 0.015, 0.001, 0.0002, 0.00003 }; // emperical probabilities for i_sBox
+	double prob[5] = { 0.00015, 0.00015, 0.00015, 0.00015, 0.000015 }; // emperical probabilities for i_sBox
 
 	double* currentListPotentials = new double[BLOCKS_NUMBER];
 	for (int i = 0; i < BLOCKS_NUMBER; ++i)
@@ -183,7 +191,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 			std::vector<uint32_t> linelATable;
 			calcLineLinearApproxTable(linelATable,inputBlock, sBoxNumber);
 
-			for (uint32_t& blockAndNumeratorOfProbability : linelATable)
+			for (uint32_t blockAndNumeratorOfProbability : linelATable)
 			{
 				uint32_t bANOP = blockAndNumeratorOfProbability;
 				int block = bANOP & 0xffff;
@@ -200,9 +208,9 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 				nextListPotentials[block] = currentPotential + (potential * inputPotential);
 			}
 		}
-
 		
-        for (int i = 0; i < BLOCKS_NUMBER; i++)
+		
+		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
 			if (nextListPotentials[i] < prob[round - 1])
 			{
@@ -210,7 +218,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 			}
 		}
 		
-
+		
 		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
 			currentListPotentials[i] = nextListPotentials[i];
@@ -249,7 +257,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 
 	std::vector<double> LP = {};
-	for (int i = 0; i < approxAndLP.size(); i++)
+	for (int i = 0; i < approxAndLP.size(); ++i)
 	{
 		LP.push_back(std::get<double>(approxAndLP.at(i)));
 	}
@@ -257,27 +265,47 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	auto it_min_LP = std::min_element(std::begin(LP), std::end(LP)); 
 	double min_LP = *it_min_LP;
 
-	int textNumber = (int)(16.0 / min_LP);
+	int textNumber = (int)(1.0 / min_LP);
 	printf("textNumber = %d\n", textNumber);
 
 	FileReader fr;
-
 	/*
-	for (int i = 0; i < BLOCKS_NUMBER; i++)
+	data_t allBlocks = {};
+	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
 		allBlocks.push_back(i);
 	}
-	data_t allBlocks = {};
-	fr.setDataBlock(allBlocks, path::pathToTestSVFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
+
+	fr.setDataBlock(allBlocks, path::pathToTestFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
 	*/
-	
+
 	// encrypt data with exe ......
-	// encryptAllTextsWithMyDefaultKey(4, path::pathToTestFolder + "ct.txt");
+	//HeysDiffAnalysis::encryptAllTextsWithMyDefaultKey(sBoxNumber, path::pathToTestFolder + "ct.txt");
 
 	// continue 
 
 	data_t encryptedBlocks = {};
 	fr.getDataBlock(path::pathToTestSVFolder + "ct.txt", encryptedBlocks);
+
+	/*
+	key_t m_roundKeys = { 0x32C6, 0x3433, 0x3635, 0x3837, 0x3139, 0x03332, 0x3534 };
+
+	data_t encrypted_1_Blocks = {};
+	for (auto bl : encryptedBlocks)
+	{
+		block_t _block = bl;
+
+		_block = _block ^ m_roundKeys[6];
+
+		for (int i = 5; i >= 1; --i)
+		{
+			permutation(_block);
+			substituion(DECRYPT, _block,4);
+			_block = _block ^ m_roundKeys[i];
+		}
+		encrypted_1_Blocks.push_back(_block);
+	}
+	*/
 
 	srand(time(0));
 
@@ -294,6 +322,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		preparedBlocks.push_back(block);
 	}
 
+	/*
 	std::array<int, UINT16_MAX + 1> PS;
 
 	for (int block = 0; block < BLOCKS_NUMBER; ++block)
@@ -304,6 +333,18 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		permutation(_block);
 		substituion(DECRYPT, _block, sBoxNumber);
 		PS[block] = _block;
+	}
+	*/
+	std::array<int, UINT16_MAX + 1> SP;
+
+	for (int block = 0; block < BLOCKS_NUMBER; ++block)
+	{
+		SP[block] = 0;
+
+		block_t _block = static_cast<block_t>(block);
+		substituion(ENCRYPT, _block, sBoxNumber);
+		permutation(_block);
+		SP[block] = _block;
 	}
 
 	auto sort_descent_pair = [](std::pair<int, int> const & a, std::pair<int, int> const & b)
@@ -337,54 +378,58 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	}
 	
 
-
 	std::vector<std::pair<int,int>> keysCand = {};
 	
-	for (int i = BLOCKS_NUMBER - 1; i >= 0; --i)
+	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
 		keysCand.push_back(std::pair<int,int>(i,0));
 	}
 	
-	for (int approx = 0; approx < 500; ++approx)
+	for (int approx = 0; approx < approxAndLP.size(); ++approx)
 	{
 		printf("approx: %d\n", approx);
 		std::vector<std::pair<int, int>> keys_ab = {};
 		int alfa = std::get<0>(approxAndLP.at(approx));
 		int beta = std::get<1>(approxAndLP.at(approx));
 
+		std::vector<int> u_vec = {};
 		for (int key = 0; key < BLOCKS_NUMBER; ++key)
 		{
 			int countZero = 0;
-
-			for (auto block : preparedBlocks)
+			for (int block : preparedBlocks)
 			{
-				int cipherBlock = encryptedBlocks[block];
-				int cipherBLock_dec = PS[cipherBlock ^ key];
-				if (!((scalarMul[alfa&block]) ^ (scalarMul[beta&cipherBLock_dec])))
+				int cipherBlock = (int)encryptedBlocks[block];
+				//int cipherBLock_dec = PS[cipherBlock ^ key];
+				int cipherBLock_enc = SP[block ^ key];
+				if (scalarMul[alfa&cipherBLock_enc] ^ scalarMul[beta&cipherBlock])
 					countZero++;
 			}
 		//	int countSingle = BLOCKS_NUMBER - countZero;
 			int u = abs(textNumber - countZero - countZero);
+			u_vec.push_back(u);
+		//	int u = countZero;
 		//	out << key << ";" << u << ";" << std::endl;
 			keys_ab.push_back(std::pair<int, int>(key, u));
 		}
 		//std::sort(keys_ab.begin(), keys_ab.end(),sort_descent_pair);
-		
-		for (int i = BLOCKS_NUMBER - 1; i >= 0; --i)
+		auto u_m = std::max_element(std::begin(u_vec), std::end(u_vec));
+		int u_max = 0.7 * (double)(*u_m);
+		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
-			if (keys_ab[i].second > 5)
+			if (keys_ab[i].second > u_max)
 			{
 				keysCand[i].second++;
 			}
 		}
-		
+		keys_ab.clear();
+		u_vec.clear();
 	}
 
 	std::sort(keysCand.begin(), keysCand.end(), sort_descent_pair);
 
 	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
-		out << keysCand[i].first << ";" << keysCand[i].second << "\n";
+		out << std::hex << keysCand[i].first  << ";" << std::dec << keysCand[i].second << "\n";
 	}
 
 	/*
@@ -420,7 +465,7 @@ std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int appro
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 64.0 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 8.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	auto resultDiffs = linearApproximationsSearch(alfa, sBoxNumber);
 
@@ -452,7 +497,7 @@ void HeysLinearAnalysis::printApprox(std::map<int, double>& resultApprox)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 256 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 1.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
 
@@ -475,7 +520,7 @@ void HeysLinearAnalysis::printApprox(std::map<int, double>& resultApprox)
 
 
 
-std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApproxWithHighLP(const std::string& filename)
+std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApproxWithHighLP(const std::string& filename, int sBoxNumber)
 {
 	int alfa[60] = {
 		0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008,0x0009,0x000A,0x000B,0x000C,0x000D,0x000E,0x000F,
@@ -496,7 +541,7 @@ std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApprox
 	for (int i = 0; i < 60; i++)
 	{
 		printf("alfa: %d \n", alfa[i]);
-		std::map<int,double> betaAndLP = HeysLinearAnalysis::getApproxWithHighLP(alfa[i], 10, 1);
+		std::map<int,double> betaAndLP = HeysLinearAnalysis::getApproxWithHighLP(alfa[i], 10, sBoxNumber);
 		for (auto it = betaAndLP.begin(); it!=betaAndLP.end(); ++it)
 		{
 			result.push_back(std::make_tuple(alfa[i], it->first, it->second));
