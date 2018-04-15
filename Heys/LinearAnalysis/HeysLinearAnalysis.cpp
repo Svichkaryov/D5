@@ -249,7 +249,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	double min_LP = *it_min_LP;
 
 	//int textNumber = (int)(0.5 / min_LP); // with such number - required key enters into ten 
-	int textNumber = (int)(1.0 / min_LP);   // with such number - required key has first position in the list 
+	int textNumber = (int)(0.25 / min_LP);   // with such number - required key has first position in the list 
 	printf("textNumber = %d\n", textNumber);
 
 	FileReader fr;
@@ -379,7 +379,7 @@ std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int appro
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 8.0 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	auto resultLA = linearApproximationsSearch(alfa, sBoxNumber);
 
@@ -468,24 +468,6 @@ std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApprox
 }
 
 
-bool HeysLinearAnalysis::isNFragmentsActive(int diff, int numberOfFragments)
-{
-	bool active = false;
-	int activeFragments = 0;
-
-	for (int i = 0; i < 4; i++)
-	{
-		active = (diff >> 4 * i) & 0xF;
-		if (active)
-			activeFragments++;
-	}
-
-	if (numberOfFragments == activeFragments)
-		return 1;
-	else
-		return 0;
-}
-
 std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::deserealizeApproxWithHighLP(const std::string& filename)
 {
 	std::vector<std::tuple<int, int, double>> approxLP;
@@ -499,6 +481,6 @@ std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::deserealizeApproxW
 		auto tuple_i = fr.split(line, ';');
 		approxLP.push_back(tuple_i);
 	}
-	return approxLP;
 
+	return approxLP;
 }

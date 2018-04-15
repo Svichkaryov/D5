@@ -19,9 +19,8 @@ public:
 	static std::vector<std::pair<int, int>> linearAttackAttempt(int sBoxNumber, std::vector<std::tuple<int, int, double>> approxAndLP);
 	static std::map<int,double> getApproxWithHighLP(int inputAlfa, int approxsNumber, int sBoxNumber);
 	static std::vector<std::tuple<int, int, double>> accumulationApproxWithHighLP(const std::string& filename, int sBoxNumber);
-	static void printApprox(std::map<int, double>& resultDiffs);
-	static bool isNFragmentsActive(int diff, int numberOfFragments);
-	static std::vector<std::tuple<int, int, double>> deserealizeApproxWithHighLP(const std::string & filename);
+	static void printApprox(std::map<int, double>& resultApprox);
+	static std::vector<std::tuple<int, int, double>> deserealizeApproxWithHighLP(const std::string& filename);
 private:
 
 };
