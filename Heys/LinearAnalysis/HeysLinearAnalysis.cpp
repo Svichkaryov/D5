@@ -124,14 +124,7 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 		int countOfZero_3 = 16 - countOfSingle_3;
 
 		uint16_t numeratorOfProbability = 0;
-		/*
-		numeratorOfProbability = (countOfSingle_0 - countOfZero_0) * (countOfSingle_0 - countOfZero_0) *
-			(countOfSingle_1 - countOfZero_1) * (countOfSingle_1 - countOfZero_1) *
-			(countOfSingle_2 - countOfZero_2) * (countOfSingle_2 - countOfZero_2) *
-			(countOfSingle_3 - countOfZero_3) * (countOfSingle_3 - countOfZero_3);
-		*/
-		
-		
+	
 		numeratorOfProbability += countOfSingle_0 * countOfZero_1   * countOfZero_2   * countOfZero_3;
 		numeratorOfProbability += countOfZero_0   * countOfSingle_1 * countOfZero_2   * countOfZero_3;
 		numeratorOfProbability += countOfZero_0   * countOfZero_1   * countOfSingle_2 * countOfZero_3;
@@ -209,7 +202,6 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 			}
 		}
 		
-		
 		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
 			if (nextListPotentials[i] < prob[round - 1])
@@ -217,20 +209,11 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 				nextListPotentials[i] = -1.0;
 			}
 		}
-		
-		
+				
 		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
 			currentListPotentials[i] = nextListPotentials[i];
 		}
-
-		/*for (int i = 0; i < BLOCKS_NUMBER; i++)
-		{
-		if (currentListPotentials[i] > 0)
-		{
-		printf("round: %d, diff: %x, prob: %f\n", round, i, currentListPotentials[i]);
-		}
-		}*/
 
 		if (round == 5)
 		{
@@ -265,19 +248,11 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	auto it_min_LP = std::min_element(std::begin(LP), std::end(LP)); 
 	double min_LP = *it_min_LP;
 
-	int textNumber = (int)(1.0 / min_LP);
+	//int textNumber = (int)(0.5 / min_LP); // with such number - required key enters into ten 
+	int textNumber = (int)(1.0 / min_LP);   // with such number - required key has first position in the list 
 	printf("textNumber = %d\n", textNumber);
 
 	FileReader fr;
-	/*
-	data_t allBlocks = {};
-	for (int i = 0; i < BLOCKS_NUMBER; ++i)
-	{
-		allBlocks.push_back(i);
-	}
-
-	fr.setDataBlock(allBlocks, path::pathToTestFolder + "pt.txt"); // insert all blocks into file pt.txt for encrypt
-	*/
 
 	// encrypt data with exe ......
 	//HeysDiffAnalysis::encryptAllTextsWithMyDefaultKey(sBoxNumber, path::pathToTestFolder + "ct.txt");
@@ -286,26 +261,6 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 
 	data_t encryptedBlocks = {};
 	fr.getDataBlock(path::pathToTestSVFolder + "ct.txt", encryptedBlocks);
-
-	/*
-	key_t m_roundKeys = { 0x32C6, 0x3433, 0x3635, 0x3837, 0x3139, 0x03332, 0x3534 };
-
-	data_t encrypted_1_Blocks = {};
-	for (auto bl : encryptedBlocks)
-	{
-		block_t _block = bl;
-
-		_block = _block ^ m_roundKeys[6];
-
-		for (int i = 5; i >= 1; --i)
-		{
-			permutation(_block);
-			substituion(DECRYPT, _block,4);
-			_block = _block ^ m_roundKeys[i];
-		}
-		encrypted_1_Blocks.push_back(_block);
-	}
-	*/
 
 	srand(time(0));
 
@@ -317,26 +272,11 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		{
 			block = rand() % 65536;
 		} while ((std::find(preparedBlocks.begin(), preparedBlocks.end(), block) != preparedBlocks.end()) );
-	//		&& isNFragmentsActive(block, 0) && isNFragmentsActive(block, 1) && isNFragmentsActive(block, 2));
 
 		preparedBlocks.push_back(block);
 	}
 
-	/*
-	std::array<int, UINT16_MAX + 1> PS;
-
-	for (int block = 0; block < BLOCKS_NUMBER; ++block)
-	{
-		PS[block] = 0;
-
-		block_t _block = static_cast<block_t>(block);
-		permutation(_block);
-		substituion(DECRYPT, _block, sBoxNumber);
-		PS[block] = _block;
-	}
-	*/
 	std::array<int, UINT16_MAX + 1> SP;
-
 	for (int block = 0; block < BLOCKS_NUMBER; ++block)
 	{
 		SP[block] = 0;
@@ -346,6 +286,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		permutation(_block);
 		SP[block] = _block;
 	}
+
 
 	auto sort_descent_pair = [](std::pair<int, int> const & a, std::pair<int, int> const & b)
 	{
@@ -358,10 +299,10 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	};
 
 	
-	std::ofstream out(path::pathToApproxWithHighLP+"key_u.txt", std::ios::binary);
+	std::ofstream out(path::pathToApproxWithHighLP+"key_ctr.txt", std::ios::binary);
 	if (!out)
 	{
-		printf("Can't open %s file.\n", fr.getFileName(path::pathToApproxWithHighLP + "key_u.txt"));
+		printf("Can't open %s file.\n", fr.getFileName(path::pathToApproxWithHighLP + "key_ctr.txt"));
 		return std::vector<std::pair<int, int>>();
 	}
 	
@@ -377,9 +318,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		scalarMul.push_back(ctr & 1);
 	}
 	
-
 	std::vector<std::pair<int,int>> keysCand = {};
-	
 	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
 		keysCand.push_back(std::pair<int,int>(i,0));
@@ -395,25 +334,22 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		std::vector<int> u_vec = {};
 		for (int key = 0; key < BLOCKS_NUMBER; ++key)
 		{
-			int countZero = 0;
+			int countSingle = 0;
 			for (int block : preparedBlocks)
 			{
-				int cipherBlock = (int)encryptedBlocks[block];
-				//int cipherBLock_dec = PS[cipherBlock ^ key];
+				int cipherBlock = encryptedBlocks[block];
 				int cipherBLock_enc = SP[block ^ key];
 				if (scalarMul[alfa&cipherBLock_enc] ^ scalarMul[beta&cipherBlock])
-					countZero++;
+					countSingle++;
 			}
-		//	int countSingle = BLOCKS_NUMBER - countZero;
-			int u = abs(textNumber - countZero - countZero);
+			int u = abs(textNumber - countSingle - countSingle);
 			u_vec.push_back(u);
-		//	int u = countZero;
-		//	out << key << ";" << u << ";" << std::endl;
 			keys_ab.push_back(std::pair<int, int>(key, u));
 		}
-		//std::sort(keys_ab.begin(), keys_ab.end(),sort_descent_pair);
-		auto u_m = std::max_element(std::begin(u_vec), std::end(u_vec));
-		int u_max = 0.7 * (double)(*u_m);
+		
+		auto it_u_max = std::max_element(std::begin(u_vec), std::end(u_vec));
+		int u_max = 0.7 * (double)(*it_u_max);
+
 		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
 			if (keys_ab[i].second > u_max)
@@ -421,8 +357,6 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 				keysCand[i].second++;
 			}
 		}
-		keys_ab.clear();
-		u_vec.clear();
 	}
 
 	std::sort(keysCand.begin(), keysCand.end(), sort_descent_pair);
@@ -432,33 +366,13 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		out << std::hex << keysCand[i].first  << ";" << std::dec << keysCand[i].second << "\n";
 	}
 
-	/*
-	auto keys = keysCand;
-	std::sort(keys.begin(), keys.end(),sort_descent_int);
-	keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
-
-	std::vector<std::pair<int, int>> l;
-	for (auto key : keys)
+	for (int i = 0; i < 10; i++)
 	{
-		int result = std::count(keysCand.begin(), keysCand.end(), key);
-		l.push_back(std::pair<int, int>(key, result));
+		printf("key: %x :: ctr: %d\n", keysCand[i].first, keysCand[i].second);
 	}
-
-	std::sort(l.begin(), l.end(), sort_descent_pair);
-	for (int i = 0; i < 100; ++i)
-	{
-		std::cout << "key: "<< l[i].first  << " | u= " << l[i].second << std::endl;
-		if (l[i].first == 56999)
-		{
-			std::cout << "YEEEEEEEEEEEEEEEEEEEE\n";
-		}
-	}
-	*/
-
 
 	return keysCand;
 }
-
 
 
 std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int approxsNumber, int sBoxNumber)
@@ -467,7 +381,7 @@ std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int appro
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
 	double boundary = 8.0 / static_cast<double>(BLOCKS_NUMBER);
 
-	auto resultDiffs = linearApproximationsSearch(alfa, sBoxNumber);
+	auto resultLA = linearApproximationsSearch(alfa, sBoxNumber);
 
 	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
 
@@ -476,12 +390,12 @@ std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int appro
 		return elem1.second > elem2.second;
 	};
 
-	std::set<std::pair<int, double>, Comparator> setOfDiff(resultDiffs.begin(), resultDiffs.end(), compFunctor);
+	std::set<std::pair<int, double>, Comparator> setOfLA(resultLA.begin(), resultLA.end(), compFunctor);
 
 	std::map<int,double> result = {};
 	int ctr = 0;
 
-	for (std::pair<int, double> element : setOfDiff)
+	for (std::pair<int, double> element : setOfLA)
 	{
 		if (ctr <= approxsNumber && element.second>boundary)
 		{
@@ -506,10 +420,10 @@ void HeysLinearAnalysis::printApprox(std::map<int, double>& resultApprox)
 		return elem1.second > elem2.second;
 	};
 
-	std::set<std::pair<int, double>, Comparator> setOfDiff(resultApprox.begin(), resultApprox.end(), compFunctor);
+	std::set<std::pair<int, double>, Comparator> setOfLA(resultApprox.begin(), resultApprox.end(), compFunctor);
 
 
-	for (std::pair<int, double> element : setOfDiff)
+	for (std::pair<int, double> element : setOfLA)
 	{
 		if (element.second > boundary)
 		{
