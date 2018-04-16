@@ -151,17 +151,20 @@ std::string FileReader::readLineFromFile(const std::string& sFilename, int lineN
 
 	line.erase(line.size() - 1);
 	ifs.close();
+	
 	return line;
 }
 
-std::tuple<int,int,double> FileReader::split(const std::string &s, char delim) {
+std::tuple<int,int,double> FileReader::split(const std::string &s, char delim) 
+{
 	std::stringstream ss(s);
 	std::string item;
 	std::vector<std::string> elems;
-	while (std::getline(ss, item, delim)) {
+	while (std::getline(ss, item, delim)) 
+	{
 		elems.push_back(item);
-		// elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
 	}
 	std::tuple<int, int, double> params = std::make_tuple(atoi(elems[0].c_str()),atoi(elems[1].c_str()),atof(elems[2].c_str()));
+	
 	return params;
 }

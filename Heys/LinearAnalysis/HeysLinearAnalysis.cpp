@@ -6,58 +6,6 @@
 
 
 
-void HeysLinearAnalysis::substituion(mode_t mode, block_t& block, int sBoxNumber)
-{
-	std::array<nibble_t, 16> _sBox;
-	switch (mode)
-	{
-	case ENCRYPT:
-		_sBox = sBoxes::sBoxes[2 * sBoxNumber - 2];
-		break;
-	case DECRYPT:
-		_sBox = sBoxes::sBoxes[2 * sBoxNumber - 1];
-		break;
-	default:
-		break;
-	}
-	nibble_t iNibble;
-	block_t iSBoxOutput;
-
-	iNibble = (block >> 0) & 0xF;
-	iSBoxOutput = (_sBox[iNibble] << 0);
-	block &= 0xFFF0;
-	block |= iSBoxOutput;
-
-	iNibble = (block >> 4) & 0xF;
-	iSBoxOutput = (_sBox[iNibble] << 4);
-	block &= 0xFF0F;
-	block |= iSBoxOutput;
-
-	iNibble = (block >> 8) & 0xF;
-	iSBoxOutput = (_sBox[iNibble] << 8);
-	block &= 0xF0FF;
-	block |= iSBoxOutput;
-
-	iNibble = (block >> 12) & 0xF;
-	iSBoxOutput = (_sBox[iNibble] << 12);
-	block &= 0x0FFF;
-	block |= iSBoxOutput;
-}
-
-void HeysLinearAnalysis::permutation(block_t & block)
-{
-	block_t temp_block = block;
-	block = 0;
-
-	block |= (temp_block & 0x8421) << 0;
-	block |= (temp_block & 0x0842) << 3;
-	block |= (temp_block & 0x0084) << 6;
-	block |= (temp_block & 0x0008) << 9;
-	block |= (temp_block & 0x4210) >> 3;
-	block |= (temp_block & 0x2100) >> 6;
-	block |= (temp_block & 0x1000) >> 9;
-}
-
 
 void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelATable, int alfa, int sBoxNumber)
 {
@@ -138,7 +86,7 @@ void HeysLinearAnalysis::calcLineLinearApproxTable(std::vector<uint32_t>& linelA
 		if (numeratorOfProbability != HALF_BLOCK_NUMBER)
 		{
 			block_t _block = static_cast<block_t>(beta);
-			permutation(_block);
+			HeysDiffAnalysis::permutation(_block);
 			linelATable.push_back(_block | (numeratorOfProbability << BLOCK_SIZE));
 		}
 	}
@@ -153,7 +101,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 
 	std::map<int, double> result;
 	
-	double prob[5] = { 0.00015, 0.00015, 0.00015, 0.00015, 0.000015 }; // emperical probabilities for i_sBox
+	double boundary[5] = { 0.00015, 0.00015, 0.00015, 0.00015, 0.000015 }; // emperical probabilities for i_sBox
 
 	double* currentListPotentials = new double[BLOCKS_NUMBER];
 	for (int i = 0; i < BLOCKS_NUMBER; ++i)
@@ -204,7 +152,7 @@ std::map<int, double> HeysLinearAnalysis::linearApproximationsSearch(int alfa, i
 		
 		for (int i = 0; i < BLOCKS_NUMBER; i++)
 		{
-			if (nextListPotentials[i] < prob[round - 1])
+			if (nextListPotentials[i] < boundary[round - 1])
 			{
 				nextListPotentials[i] = -1.0;
 			}
@@ -248,8 +196,8 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	auto it_min_LP = std::min_element(std::begin(LP), std::end(LP)); 
 	double min_LP = *it_min_LP;
 
+	int textNumber = (int)(1.0 / min_LP);   // with such number - required key has first position in the list 
 	//int textNumber = (int)(0.5 / min_LP); // with such number - required key enters into ten 
-	int textNumber = (int)(0.25 / min_LP);   // with such number - required key has first position in the list 
 	printf("textNumber = %d\n", textNumber);
 
 	FileReader fr;
@@ -282,8 +230,8 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		SP[block] = 0;
 
 		block_t _block = static_cast<block_t>(block);
-		substituion(ENCRYPT, _block, sBoxNumber);
-		permutation(_block);
+		HeysDiffAnalysis::substituion(ENCRYPT, _block, sBoxNumber);
+		HeysDiffAnalysis::permutation(_block);
 		SP[block] = _block;
 	}
 
