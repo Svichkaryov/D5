@@ -7,6 +7,7 @@
 #include <tuple>
 #include <map>
 #include <set>
+#include <deque>
 #include <string>
 #include <iterator>
 #include <fstream>

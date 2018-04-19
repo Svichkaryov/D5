@@ -254,7 +254,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		return std::vector<std::pair<int, int>>();
 	}
 	
-	std::vector<int> scalarMul = {};
+	std::array<bool,UINT16_MAX> scalarMul = {};
 	for (int i = 0; i < BLOCKS_NUMBER; ++i)
 	{
 		int ctr = 0;
@@ -263,7 +263,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 			if ((i >> j) & 1)
 				ctr++;
 		}
-		scalarMul.push_back(ctr & 1);
+		scalarMul[i] = ctr & 1;
 	}
 	
 	std::vector<std::pair<int,int>> keysCand = {};
@@ -286,8 +286,8 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 			for (int block : preparedBlocks)
 			{
 				int cipherBlock = encryptedBlocks[block];
-				int cipherBLock_enc = SP[block ^ key];
-				if (scalarMul[alfa&cipherBLock_enc] ^ scalarMul[beta&cipherBlock])
+				int BLock_enc_1 = SP[block ^ key];
+				if (scalarMul[alfa&BLock_enc_1] ^ scalarMul[beta&cipherBlock])
 					countSingle++;
 			}
 			int u = abs(textNumber - countSingle - countSingle);
@@ -327,7 +327,7 @@ std::map<int,double> HeysLinearAnalysis::getApproxWithHighLP(int alfa, int appro
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 8.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	auto resultLA = linearApproximationsSearch(alfa, sBoxNumber);
 
@@ -359,7 +359,7 @@ void HeysLinearAnalysis::printApprox(std::map<int, double>& resultApprox)
 {
 	int BLOCK_SIZE = HeysCipher::getCipherParam(BLOCK_SIZE_P);
 	int BLOCKS_NUMBER = (1 << BLOCK_SIZE);
-	double boundary = 1.0 / static_cast<double>(BLOCKS_NUMBER);
+	double boundary = 4.0 / static_cast<double>(BLOCKS_NUMBER);
 
 	typedef std::function<bool(std::pair<int, double>, std::pair<int, double>)> Comparator;
 
