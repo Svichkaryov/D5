@@ -4,8 +4,8 @@
 
 namespace path
 {
-	const std::string pathToTestFolder   = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/test/testMyProg/";
-	const std::string pathToTestSVFolder = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/test/testSVProg/";
+	const std::string pathToTestFolder   = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/test/CipherTest/testMyProg/";
+	const std::string pathToTestSVFolder = "E:/VS_VC_Proj/SV/Heys/Heys/Heys/test/CipherTest/testSVProg/";
 	const std::string plaintText         = pathToTestFolder + "pt.txt";
 	const std::string cipherText         = pathToTestFolder + "ct.txt";
 	const std::string key                = pathToTestFolder + "key.txt";

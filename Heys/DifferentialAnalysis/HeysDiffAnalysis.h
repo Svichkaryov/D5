@@ -21,11 +21,14 @@ public:
 	static void calcLineOfDPTable(std::vector<int>& lineOfDPTable, int differential, int sBoxNumber);
 
 	static std::map<int,double> differentialSearch(int inputDiff, int sBoxNumber);
-	static int diffAttackAttempt(int sBoxNumber, int inputDiff, std::vector<int> differentials, double probabilities);
-
-	static std::vector<int> getMostProbDiff(int inputDiff, int diffsNumber, int sBoxNumber);
 	static void printDifferentials(std::map<int, double>& resultDiffs);
+	static int  diffAttackAttempt(int sBoxNumber, int inputDiff, std::vector<int> differentials, double minProbability);
+	static int  diffAttack(int sBoxNumber, int inputDiff, int outputDiffsCount, double minProbability);
+
+	static std::vector<int> getMostProbDiff(int sBoxNumber, int inputDiff, int outputDiffsCount);
+
 	static void encryptAllTextsWithMyDefaultKey(int sBoxNumber, const std::string& to);
+	
 	static bool isNFragmentsActive(int differential, int numberOfFragments);
 private:
 	
