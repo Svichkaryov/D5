@@ -3,7 +3,6 @@
 #include <sstream>
 
 
-
 std::string FileReader::getFileName(const std::string& filePath, bool withExtension, char seperator)
 {
 	std::size_t dotPos = filePath.rfind('.');
@@ -41,7 +40,6 @@ std::vector<char> FileReader::readAllBytes(const std::string& filename)
 	return result;
 }
 
-
 long long FileReader::getFileSize(const std::string& from)
 {
 	std::streampos begin, end;
@@ -63,7 +61,6 @@ long long FileReader::getFileSize(const std::string& from)
 	
 	return _size;
 }
-
 
 int FileReader::getDataBlock(const std::string& from, data_t& to)
 {
@@ -88,7 +85,6 @@ int FileReader::getDataBlock(const std::string& from, data_t& to)
 
 	return 1;
 }
-
 
 int FileReader::setDataBlock(const data_t& from, const std::string& to)
 {
@@ -120,7 +116,6 @@ int FileReader::setDataBlock(const data_t& from, const std::string& to)
 
 	return 1;
 }
-
 
 std::string FileReader::readLineFromFile(const std::string& sFilename, int lineNumber)
 {

@@ -15,7 +15,6 @@ namespace path
 	extern const std::string pathToApproxWithHighLP;
 }
 
-
 namespace sBoxes
 {
 	extern const std::array<std::array<nibble_t, 16>, 32> sBoxes;

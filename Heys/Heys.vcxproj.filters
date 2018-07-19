@@ -74,5 +74,8 @@
     <ClCompile Include="LinearAnalysis\HeysLinearAnalysis.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="common\common.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

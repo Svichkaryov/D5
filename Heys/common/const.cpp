@@ -71,7 +71,6 @@ namespace sBoxes
 		}
 	};
 
-
 	std::array<nibble_t, 16> getInvSbox(const std::array<nibble_t, 16>& sBox)
 	{
 		std::array<nibble_t, 16> invSBox;
@@ -86,7 +85,6 @@ namespace sBoxes
 		return invSBox;
 
 	}
-
 
 	void printSBox(const std::array<nibble_t, 16>& sBox)
 	{

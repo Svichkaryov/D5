@@ -250,7 +250,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 	std::ofstream out(path::pathToApproxWithHighLP+"key_ctr.txt", std::ios::binary);
 	if (!out)
 	{
-		printf("Can't open %s file.\n", fr.getFileName(path::pathToApproxWithHighLP + "key_ctr.txt"));
+		printf("Can't open %s file.\n", fr.getFileName(path::pathToApproxWithHighLP + "key_ctr.txt").c_str());
 		return std::vector<std::pair<int, int>>();
 	}
 	
@@ -296,7 +296,7 @@ std::vector<std::pair<int,int>> HeysLinearAnalysis::linearAttackAttempt(int sBox
 		}
 		
 		auto it_u_max = std::max_element(std::begin(u_vec), std::end(u_vec));
-		int u_max = 0.7 * (double)(*it_u_max);
+		int u_max = static_cast<int>(0.7 * static_cast<double>(*it_u_max));
 
 		for (int i = 0; i < BLOCKS_NUMBER; ++i)
 		{
@@ -396,7 +396,7 @@ std::vector<std::tuple<int, int, double>> HeysLinearAnalysis::accumulationApprox
 	std::ofstream out(filename, std::ios::binary);
 	if (!out)
 	{
-		printf("Can't open %s file.\n", fr.getFileName(filename));
+		printf("Can't open %s file.\n", fr.getFileName(filename).c_str());
 		return std::vector<std::tuple<int, int, double>>();
 	}
 

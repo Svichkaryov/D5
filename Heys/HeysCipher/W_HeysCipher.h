@@ -2,6 +2,7 @@
 
 #include "../common/common.h"
 
+
 class W_HeysCipher
 {
 public:
