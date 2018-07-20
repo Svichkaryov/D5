@@ -16,6 +16,7 @@
 #include <chrono>
 #include <ctime>
 #include <thread>
+#include <stdexcept>
 
 
 using byte_t     = uint8_t;

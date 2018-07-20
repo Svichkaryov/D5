@@ -10,7 +10,8 @@ std::string FileReader::getFileName(const std::string& filePath, bool withExtens
 
 	if (sepPos != std::string::npos)
 	{
-		return filePath.substr(sepPos + 1, filePath.size() - (withExtension || dotPos != std::string::npos ? 1 : dotPos));
+		return filePath.substr(sepPos + 1, filePath.size() - 
+			(withExtension || dotPos != std::string::npos ? 1 : dotPos));
 	}
 	return filePath;
 }
@@ -19,47 +20,64 @@ std::vector<char> FileReader::readAllBytes(const std::string& filename)
 {
 	std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
 	
-	if (!ifs)
+	try
 	{
-		printf("Can't open %s file.\n", getFileName(filename).c_str());
-		return std::vector<char>();
+		if (ifs.fail())
+		{
+			throw std::invalid_argument("Unable to open file: " + getFileName(filename) 
+				+ " in " + (__func__));
+		}
+		if (getFileSize(filename) == 0)
+		{
+			return std::vector<char>();
+		}
+
+		std::ifstream::pos_type pos = ifs.tellg();
+
+		std::vector<char> result(pos);
+
+		ifs.seekg(0, std::ios::beg);
+		ifs.read(&result[0], pos);
+		ifs.close();
+
+		return result;
 	}
-	if (getFileSize(filename) == 0)
+	catch (const std::exception&)
 	{
-		return std::vector<char>();
+		ifs.close();
+		throw;
 	}
-
-	std::ifstream::pos_type pos = ifs.tellg();
-
-	std::vector<char> result(pos);
-
-	ifs.seekg(0, std::ios::beg);
-	ifs.read(&result[0], pos);
-	ifs.close();
-	
-	return result;
 }
 
-long long FileReader::getFileSize(const std::string& from)
+long long FileReader::getFileSize(const std::string& filename)
 {
 	std::streampos begin, end;
-	std::ifstream ifs(from, std::ios::binary);
-
-	if (!ifs)
+	std::ifstream ifs(filename, std::ios::binary);
+	
+	try
 	{
-		printf("Can't open %s file.\n", getFileName(from).c_str());
-		return -1;
-	}
+		if (ifs.fail())
+		{
+			throw std::invalid_argument("Unable to open file: " + getFileName(filename)
+				+ " in " + (__func__));
+		}
 
-	begin = ifs.tellg();
-	ifs.seekg(0, std::ios::end);
-	end = ifs.tellg();
-	ifs.close();
-	long long _size = end - begin;
-	
-	printf("Size of %s is %I64d bytes.\n", getFileName(from).c_str(), _size);
-	
-	return _size;
+		begin = ifs.tellg();
+		ifs.seekg(0, std::ios::end);
+		end = ifs.tellg();
+		ifs.close();
+
+		long long _size = end - begin;
+
+		printf("Size of %s is %I64d bytes.\n", getFileName(filename).c_str(), _size);
+
+		return _size;
+	}
+	catch (const std::exception&)
+	{
+		ifs.close();
+		throw;
+	}
 }
 
 int FileReader::getDataBlock(const std::string& from, data_t& to)
@@ -89,65 +107,81 @@ int FileReader::getDataBlock(const std::string& from, data_t& to)
 int FileReader::setDataBlock(const data_t& from, const std::string& to)
 {
 	std::ofstream out(to, std::ios::binary);
-	if (!out) 
+	try
 	{
-		printf("Can't open %s file.\n", getFileName(to).c_str());
-		return -1;
-	}
+		if (out.fail())
+		{
+			throw std::invalid_argument("Unable to open file: " + getFileName(to)
+				+ " in " + (__func__));
+		}
 
-	for (int i = 0; i < from.size(); ++i)
-	{
-		block_t temp = from[i];
-		byte_t high = static_cast<byte_t>((temp & 0xFF00) >> 8);
-		byte_t low  = static_cast<byte_t>(temp & 0xFF);
-		out << low << high;
-	}
+		for (int i = 0; i < from.size(); ++i)
+		{
+			block_t temp = from[i];
+			byte_t high = static_cast<byte_t>((temp & 0xFF00) >> 8);
+			byte_t low = static_cast<byte_t>(temp & 0xFF);
+			out << low << high;
+		}
 
-	out.close();
-	
-	if (getFileSize(to) == 0)
-	{
-		printf("Something is going wrong.\n");
-	}
-	else
-	{
-		printf("Writing data to %s.\n", getFileName(to).c_str());
-	}
+		out.close();
 
-	return 1;
+		if (from.empty() || getFileSize(to) == 0)
+		{
+			printf("Nothing to write.\n");
+		}
+		else
+		{
+			printf("Writing data to %s.\n", getFileName(to).c_str());
+		}
+
+		return 1;
+	}
+	catch (const std::exception&)
+	{
+		out.close();
+		throw;
+	}
 }
 
-std::string FileReader::readLineFromFile(const std::string& sFilename, int lineNumber)
+std::string FileReader::readLineFromFile(const std::string& filename, int lineNumber)
 {
 	std::string line;
-	std::ifstream ifs(sFilename, std::ifstream::in);
+	std::ifstream ifs(filename, std::ifstream::in);
 
-	if (!ifs.is_open())
+	try
 	{
-		printf("Can't open file.\n");
-		exit(1);
+		if (!ifs.is_open())
+		{
+			throw std::invalid_argument("Unable to open file: " + getFileName(filename)
+				+ " in " + (__func__));
+		}
+
+		char n;
+		int i = 0;
+
+		while (ifs.good())
+		{
+			n = ifs.get();
+			if (i == lineNumber)
+			{
+				line += n;
+			}
+			if (n == '\n')
+			{
+				i++;
+			}
+		}
+
+		line.erase(line.size() - 1);
+		ifs.close();
+
+		return line;
 	}
-
-	char n;
-	int i = 0;
-
-	while (ifs.good())
+	catch (...)
 	{
-		n = ifs.get();
-		if (i == lineNumber)
-		{
-			line += n;
-		}
-		if (n == '\n')
-		{
-			i++;
-		}
+		ifs.close();
+		throw;
 	}
-
-	line.erase(line.size() - 1);
-	ifs.close();
-	
-	return line;
 }
 
 std::tuple<int,int,double> FileReader::split(const std::string &s, char delim) 
